@@ -12,6 +12,17 @@
     "checksum": "521b63c9de4922d79465d15dcb812fc31c840b39e7f971a130c0e7baffe89db0"
   },
   {
+    "name": "garlic-savemgr",
+    "filename": "garlic-savemgr_v1.82b.elf",
+    "url": "https://github.com/itsPLK/ps5-payloads-mirror/releases/download/payloads-mirror/garlic-savemgr_v1.82b.elf",
+    "source": "https://git.etawen.dev/earthonion/garlic-savemgr/releases",
+    "source_direct": "https://git.etawen.dev/earthonion/garlic-savemgr/releases/download/v1.82b/garlic-savemgr.elf",
+    "description": "PS5 save decrypt/encrypt/browse with embedded web UI.",
+    "last_update": "2026-05-27",
+    "version": "v1.82b",
+    "checksum": "0683ba0c384c19d184b68f0e47790b77051d404d5fd744c1a9a659f5066e4482"
+  },
+  {
     "name": "kstuff-lite",
     "filename": "kstuff-lite_v1.06.elf",
     "url": "https://github.com/itsPLK/ps5-payloads-mirror/releases/download/payloads-mirror/kstuff-lite_v1.06.elf",
@@ -110,17 +121,6 @@
     "last_update": "2026-04-30",
     "version": "0.1",
     "checksum": "d74e4cd119b2bb1fd423f2f5b1c9a7f096b3e588c753af1ab48b983d56216a52"
-  },
-  {
-    "name": "garlic-savemgr",
-    "filename": "garlic-savemgr_v1.7.elf",
-    "url": "https://github.com/itsPLK/ps5-payloads-mirror/releases/download/payloads-mirror/garlic-savemgr_v1.7.elf",
-    "source": "https://git.etawen.dev/earthonion/garlic-savemgr/releases",
-    "source_direct": "https://github.com/earthonion/garlic-savemgr/releases/download/v1.7/garlic-savemgr.elf",
-    "description": "PS5 save decrypt/encrypt/browse with embedded web UI.",
-    "last_update": "2026-03-16",
-    "version": "v1.7",
-    "checksum": "124051ab3a762474720ae53187d2920bc96d6be1d69aa298e715667efc385a2f"
   },
   {
     "name": "kstuff",
