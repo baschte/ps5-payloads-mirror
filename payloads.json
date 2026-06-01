@@ -123,6 +123,17 @@
     "checksum": "d74e4cd119b2bb1fd423f2f5b1c9a7f096b3e588c753af1ab48b983d56216a52"
   },
   {
+    "name": "nanoDNS",
+    "filename": "nanoDNS_0.2.elf",
+    "url": "https://github.com/itsPLK/ps5-payloads-mirror/releases/download/payloads-mirror/nanoDNS_0.2.elf",
+    "source": "https://github.com/drakmor/nanoDNS/releases",
+    "source_direct": "https://github.com/drakmor/nanoDNS/releases/download/0.2/nanodns.elf",
+    "description": "Local DNS proxy server",
+    "last_update": "2026-03-21",
+    "version": "0.2",
+    "checksum": "278732b2f5ae801d5f9a303d8fc96d97f7bf153833aa058534a41ef028d76c86"
+  },
+  {
     "name": "kstuff",
     "filename": "kstuff_v1.6.7.elf",
     "url": "https://github.com/itsPLK/ps5-payloads-mirror/releases/download/payloads-mirror/kstuff_v1.6.7.elf",
