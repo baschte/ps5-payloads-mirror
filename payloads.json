@@ -1,26 +1,37 @@
 [
   {
     "name": "ShadowMountPlus",
-    "filename": "ShadowMountPlus_1.6test15.elf",
-    "url": "https://github.com/itsPLK/ps5-payloads-mirror/releases/download/payloads-mirror/ShadowMountPlus_1.6test15.elf",
+    "filename": "ShadowMountPlus_1.6test15-fix2.elf",
+    "url": "https://github.com/itsPLK/ps5-payloads-mirror/releases/download/payloads-mirror/ShadowMountPlus_1.6test15-fix2.elf",
     "source": "https://github.com/drakmor/ShadowMountPlus/releases",
-    "source_direct": "https://github.com/drakmor/ShadowMountPlus/releases/download/1.6test15/ShadowMountPlus_1.6test15.zip",
+    "source_direct": "https://github.com/drakmor/ShadowMountPlus/releases/download/1.6test15-fix2/ShadowMountPlus_1.6test15-fix2.zip",
     "extract_file": "shadowmountplus.elf",
     "description": "A fully automated, background 'Auto-Mounter' payload for Jailbroken PlayStation 5 consoles.",
-    "last_update": "2026-06-02",
-    "version": "1.6test15",
-    "checksum": "7eb7f6e80b33f5f42ef0e900bec78fb3a6842ebdc8c8868463e02558209c1010"
+    "last_update": "2026-06-03",
+    "version": "1.6test15-fix2",
+    "checksum": "8ab32f4cede840a73515c05697fe81759bc98cf41fc22b43e09943262f447e99"
   },
   {
     "name": "ps5debug-NG",
-    "filename": "ps5debug-NG_1.2.6.elf",
-    "url": "https://github.com/itsPLK/ps5-payloads-mirror/releases/download/payloads-mirror/ps5debug-NG_1.2.6.elf",
+    "filename": "ps5debug-NG_1.2.7.elf",
+    "url": "https://github.com/itsPLK/ps5-payloads-mirror/releases/download/payloads-mirror/ps5debug-NG_1.2.7.elf",
     "source": "https://github.com/OpenSourcereR-dev/ps5debug-NG/releases",
-    "source_direct": "https://github.com/OpenSourcereR-dev/ps5debug-NG/releases/download/1.2.6/ps5debug-NG_v1.2.6-revision1.elf",
+    "source_direct": "https://github.com/OpenSourcereR-dev/ps5debug-NG/releases/download/1.2.7/ps5debug-NG_v1.2.7.elf",
     "description": "PS5 debugger payload - userland TCP wire-protocol server hosted inside SceShellCore.",
-    "last_update": "2026-06-02",
-    "version": "1.2.6",
-    "checksum": "902dd3a34aa78d34966513846867b93cd9046c2c35207a05a4779b92748adc2f"
+    "last_update": "2026-06-03",
+    "version": "1.2.7",
+    "checksum": "bfb07865611df05d4a07236f375e7e0b64e2f387124052fa67510f8b4fcae1a7"
+  },
+  {
+    "name": "nanoDNS",
+    "filename": "nanoDNS_0.3.elf",
+    "url": "https://github.com/itsPLK/ps5-payloads-mirror/releases/download/payloads-mirror/nanoDNS_0.3.elf",
+    "source": "https://github.com/drakmor/nanoDNS/releases",
+    "source_direct": "https://github.com/drakmor/nanoDNS/releases/download/0.3/nanodns.elf",
+    "description": "Local DNS proxy server",
+    "last_update": "2026-06-03",
+    "version": "0.3",
+    "checksum": "ce1c8b31036ab948da65b362a4b6f249ffca8a555fc5bc4b051ec65d041bc944"
   },
   {
     "name": "Lapy-JB-Daemon",
@@ -165,17 +176,6 @@
     "last_update": "2026-04-08",
     "version": "1.15-ng-stable",
     "checksum": "913a443af847b6861ec11748e2640f62d1fc1027076f576aa0ddccab8507311f"
-  },
-  {
-    "name": "nanoDNS",
-    "filename": "nanoDNS_0.2.elf",
-    "url": "https://github.com/itsPLK/ps5-payloads-mirror/releases/download/payloads-mirror/nanoDNS_0.2.elf",
-    "source": "https://github.com/drakmor/nanoDNS/releases",
-    "source_direct": "https://github.com/drakmor/nanoDNS/releases/download/0.2/nanodns.elf",
-    "description": "Local DNS proxy server",
-    "last_update": "2026-03-21",
-    "version": "0.2",
-    "checksum": "278732b2f5ae801d5f9a303d8fc96d97f7bf153833aa058534a41ef028d76c86"
   },
   {
     "name": "zftpd",
