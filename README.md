@@ -7,7 +7,7 @@ This repository contains an automated mirror of useful payloads for the PlayStat
 <!-- PAYLOADS_START -->
 | Payload | Version | Description | Last Updated | Source | Download |
 | --- | --- | --- | --- | --- | --- |
-| **garlic-savemgr** | `v1.9` | PS5 save decrypt/encrypt/browse with embedded web UI. | `2026-06-11` | [Source](https://git.etawen.dev/earthonion/garlic-savemgr/releases) | [Download](https://github.com/itsPLK/ps5-payloads-mirror/releases/download/payloads-mirror/garlic-savemgr_v1.9.elf) |
+| **garlic-savemgr** | `v1.10` | PS5 save decrypt/encrypt/browse with embedded web UI. | `2026-06-11` | [Source](https://git.etawen.dev/earthonion/garlic-savemgr/releases) | [Download](https://github.com/itsPLK/ps5-payloads-mirror/releases/download/payloads-mirror/garlic-savemgr_v1.10.elf) |
 | **kstuff-lite** | `v1.07` | Lite version of kstuff | `2026-06-08` | [Source](https://github.com/EchoStretch/kstuff-lite/releases) | [Download](https://github.com/itsPLK/ps5-payloads-mirror/releases/download/payloads-mirror/kstuff-lite_v1.07.elf) |
 | **pldmgr** | `v0.3.1` | A modern, web-based dashboard to easily manage, import, and automatically load payloads on your PS5. | `2026-06-06` | [Source](https://github.com/itsPLK/pldmgr/releases) | [Download](https://github.com/itsPLK/ps5-payloads-mirror/releases/download/payloads-mirror/pldmgr_v0.3.1.elf) |
 | **ShadowMountPlus** | `1.6test15-fix2` | A fully automated, background 'Auto-Mounter' payload for Jailbroken PlayStation 5 consoles. | `2026-06-03` | [Source](https://github.com/drakmor/ShadowMountPlus/releases) | [Download](https://github.com/itsPLK/ps5-payloads-mirror/releases/download/payloads-mirror/ShadowMountPlus_1.6test15-fix2.elf) |
