@@ -7,6 +7,7 @@ This repository contains an automated mirror of useful payloads for the PlayStat
 <!-- PAYLOADS_START -->
 | Payload | Version | Description | Last Updated | Source | Download |
 | --- | --- | --- | --- | --- | --- |
+| **zftpd** | `v1.5.0` | Zero-copy FTP/HTTP Server | `2026-06-14` | [Source](https://github.com/seregonwar/zftpd/releases) | [Download](https://github.com/itsPLK/ps5-payloads-mirror/releases/download/payloads-mirror/zftpd_v1.5.0.elf) |
 | **garlic-savemgr** | `v1.10` | PS5 save decrypt/encrypt/browse with embedded web UI. | `2026-06-11` | [Source](https://git.etawen.dev/earthonion/garlic-savemgr/releases) | [Download](https://github.com/itsPLK/ps5-payloads-mirror/releases/download/payloads-mirror/garlic-savemgr_v1.10.elf) |
 | **kstuff-lite** | `v1.07` | Lite version of kstuff | `2026-06-08` | [Source](https://github.com/EchoStretch/kstuff-lite/releases) | [Download](https://github.com/itsPLK/ps5-payloads-mirror/releases/download/payloads-mirror/kstuff-lite_v1.07.elf) |
 | **pldmgr** | `v0.3.1` | A modern, web-based dashboard to easily manage, import, and automatically load payloads on your PS5. | `2026-06-06` | [Source](https://github.com/itsPLK/pldmgr/releases) | [Download](https://github.com/itsPLK/ps5-payloads-mirror/releases/download/payloads-mirror/pldmgr_v0.3.1.elf) |
@@ -23,7 +24,6 @@ This repository contains an automated mirror of useful payloads for the PlayStat
 | **kstuff-toggle** | `0.6` | Boost homebrew game performance on your PS5 by disabling Kstuff after launching the game. | `2026-05-07` | [Source](https://github.com/EchoStretch/kstuff-toggle/releases) | [Download](https://github.com/itsPLK/ps5-payloads-mirror/releases/download/payloads-mirror/kstuff-toggle_0.6.elf) |
 | **BackPork** | `0.1` | Lets you sideload system libraries into PS5 games | `2026-04-30` | [Source](https://github.com/BestPig/BackPork/releases) | [Download](https://github.com/itsPLK/ps5-payloads-mirror/releases/download/payloads-mirror/BackPork_0.1.elf) |
 | **ftpsrv-drakmor** | `1.15-ng-stable` | drakmor's fork of ftpsrv | `2026-04-08` | [Source](https://github.com/drakmor/ftpsrv/releases) | [Download](https://github.com/itsPLK/ps5-payloads-mirror/releases/download/payloads-mirror/ftpsrv-drakmor_1.15-ng-stable.elf) |
-| **zftpd** | `v1.4.0` | Zero-copy FTP/HTTP Server | `2026-03-11` | [Source](https://github.com/seregonwar/zftpd/releases) | [Download](https://github.com/itsPLK/ps5-payloads-mirror/releases/download/payloads-mirror/zftpd_v1.4.0.elf) |
 | **kstuff** | `v1.6.7` | Dynamically patches the PS5 kernel to bypass security | `2026-01-04` | [Source](https://github.com/EchoStretch/kstuff/releases) | [Download](https://github.com/itsPLK/ps5-payloads-mirror/releases/download/payloads-mirror/kstuff_v1.6.7.elf) |
 | **etaHEN** | `2.5B` | AIO HEN payload | `2025-12-25` | [Source](https://github.com/etaHEN/etaHEN/releases) | [Download](https://github.com/itsPLK/ps5-payloads-mirror/releases/download/payloads-mirror/etaHEN_2.5B.bin) |
 <!-- PAYLOADS_END -->
