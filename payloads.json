@@ -11,6 +11,17 @@
     "checksum": "29eb7e0b2d46ff23203597ce93ff463d7c4df65ace48b08ca65be3cb184491b2"
   },
   {
+    "name": "pegasus-dl",
+    "filename": "pegasus-dl_v1.4.0.elf",
+    "url": "https://github.com/baschte/ps5-payloads-mirror/releases/download/payloads-mirror/pegasus-dl_v1.4.0.elf",
+    "source": "https://github.com/pegasus-ps5/pegasus-dl/releases",
+    "source_direct": "https://github.com/pegasus-ps5/pegasus-dl/releases/download/v1.4.0/pegasus_dl.elf",
+    "description": "Direct package downloading from your PS5, managed through a local web interface.",
+    "last_update": "2026-06-15",
+    "version": "v1.4.0",
+    "checksum": "3e2731fba643b7f303a6a6dc2092edf3bca213cc44d73463c9f74d3887c7bc09"
+  },
+  {
     "name": "zftpd",
     "filename": "zftpd_v1.5.0.elf",
     "url": "https://github.com/baschte/ps5-payloads-mirror/releases/download/payloads-mirror/zftpd_v1.5.0.elf",
@@ -42,7 +53,7 @@
     "description": "Lite version of kstuff",
     "last_update": "2026-06-08",
     "version": "v1.07",
-    "checksum": "886c3440c0a5d07e146ae5e7a13c7884fbdd9ef88407d962c29daf2ea1d910c0"
+    "checksum": "eb730eccd1a333f94e918076d053b4d20701f7c97e6356e591cebabfb4e0fa2d"
   },
   {
     "name": "pldmgr",
@@ -176,7 +187,7 @@
     "description": "Boost homebrew game performance on your PS5 by disabling Kstuff after launching the game.",
     "last_update": "2026-05-07",
     "version": "0.6",
-    "checksum": "a1e99f2758aea98e78a37d1a1c2f79b08187acb35c7410eec4c8f4763162768f"
+    "checksum": "0e87e92959791d9edf04c314802fcf18ccf37db74ae353d434a0062557f85093"
   },
   {
     "name": "BackPork",
