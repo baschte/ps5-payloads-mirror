@@ -32,9 +32,9 @@ BASE_DIR = Path(__file__).resolve().parent
 JSON_FILE = BASE_DIR / "payloads.json"
 PAYLOADS_DIR = BASE_DIR / "payloads"
 README_FILE = BASE_DIR / "README.md"
-BASE_URL = "https://github.com/itsPLK/ps5-payloads-mirror/releases/download/payloads-mirror"
+BASE_URL = "https://github.com/baschte/ps5-payloads-mirror/releases/download/payloads-mirror"
 
-MIRROR_OWNER = "itsPLK"
+MIRROR_OWNER = "baschte"
 MIRROR_REPO = "ps5-payloads-mirror"
 
 FIELD_ORDER = [
@@ -227,7 +227,7 @@ This repository contains an automated mirror of useful payloads for the PlayStat
 
 ## Support & Suggestions
 
-If you have suggestions for a new payload to be added or if there's an important issue with some payload, please report them in the [Issues section](https://github.com/itsPLK/ps5-payloads-mirror/issues/new).
+If you have suggestions for a new payload to be added or if there's an important issue with some payload, please report them in the [Issues section](https://github.com/baschte/ps5-payloads-mirror/issues/new).
 """
 
     start_marker = "<!-- PAYLOADS_START -->"
