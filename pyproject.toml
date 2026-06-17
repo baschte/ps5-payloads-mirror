@@ -1,0 +1,15 @@
+[project]
+name = "ps5-payloads-mirror"
+version = "1.0.0"
+description = "Web UI + automation for mirroring PS5 payloads."
+requires-python = ">=3.10"
+dependencies = [
+    "fastapi[standard]>=0.115.0",
+]
+
+[tool.fastapi]
+entrypoint = "server.main:app"
+
+[tool.setuptools]
+py-modules = ["mirror_core", "add_payload", "update_payloads"]
+packages = ["server"]

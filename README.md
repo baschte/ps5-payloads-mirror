@@ -7,6 +7,7 @@ This repository contains an automated mirror of useful payloads for the PlayStat
 <!-- PAYLOADS_START -->
 | Payload | Version | Description | Last Updated | Source | Download |
 | --- | --- | --- | --- | --- | --- |
+| **PS5-Game-Compressor** | `v1.0.0` | Standalone PS5 payload for compressing, unpacking, validating, repairing, and moving ShadowMountPlus-mounted games from a simple web UI. | `2026-06-17` | [Source](https://github.com/juma-sayeh/PS5-Game-Compressor/releases) | [Download](https://github.com/itsPLK/ps5-payloads-mirror/releases/download/payloads-mirror/PS5-Game-Compressor_v1.0.0.elf) |
 | **zftpd** | `v1.5.0` | Zero-copy FTP/HTTP Server | `2026-06-14` | [Source](https://github.com/seregonwar/zftpd/releases) | [Download](https://github.com/itsPLK/ps5-payloads-mirror/releases/download/payloads-mirror/zftpd_v1.5.0.elf) |
 | **garlic-savemgr** | `v1.10` | PS5 save decrypt/encrypt/browse with embedded web UI. | `2026-06-11` | [Source](https://git.etawen.dev/earthonion/garlic-savemgr/releases) | [Download](https://github.com/itsPLK/ps5-payloads-mirror/releases/download/payloads-mirror/garlic-savemgr_v1.10.elf) |
 | **kstuff-lite** | `v1.07` | Lite version of kstuff | `2026-06-08` | [Source](https://github.com/EchoStretch/kstuff-lite/releases) | [Download](https://github.com/itsPLK/ps5-payloads-mirror/releases/download/payloads-mirror/kstuff-lite_v1.07.elf) |

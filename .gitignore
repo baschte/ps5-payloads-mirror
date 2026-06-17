@@ -1,2 +1,17 @@
 payloads/
 .DS_Store
+.claude/
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+*.egg-info/
+
+# Frontend
+web/node_modules/
+web/dist/
+
+# Runtime config
+scheduler_config.json
+.env

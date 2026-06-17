@@ -1,0 +1,43 @@
+# PS5 Payloads Mirror — single-container web app (FastAPI serves the built
+# React frontend and the JSON API). See WEBUI.md for details.
+#
+#   docker compose up -d --build      # start (build on first run)
+#   docker compose logs -f            # follow logs
+#   docker compose down               # stop & remove
+
+services:
+  mirror:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: ps5-payloads-mirror:latest
+    container_name: ps5-payloads-mirror
+    restart: unless-stopped
+
+    ports:
+      # Host port is overridable via PORT in .env (defaults to 8000).
+      - "${PORT:-8000}:8000"
+
+    environment:
+      # gh CLI uses this token to read github.com release metadata.
+      # Non-GitHub hosts (e.g. Gitea) are reached directly and need no token.
+      GH_TOKEN: ${GH_TOKEN:-}
+      # Optional Basic Auth for the UI + management API (set both to enable).
+      # /payloads.json and /api/health stay public regardless.
+      MIRROR_AUTH_USER: ${MIRROR_AUTH_USER:-}
+      MIRROR_AUTH_PASSWORD: ${MIRROR_AUTH_PASSWORD:-}
+
+    volumes:
+      # Persist the mirror data on the host so it survives rebuilds/recreates.
+      # payloads.json + README.md are real files in the repo; payloads/ is a
+      # directory the app populates with the downloaded .elf/.bin binaries.
+      - ./payloads.json:/app/payloads.json
+      - ./README.md:/app/README.md
+      - ./payloads:/app/payloads
+
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://localhost:8000/api/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 20s

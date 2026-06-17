@@ -1,0 +1,164 @@
+@import "tailwindcss";
+
+/* Class-based dark mode: `dark:` applies when <html> has the `.dark` class. */
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+  /* Typography — distinctive yet friendly, bundled via Fontsource. */
+  --font-sans: "Hanken Grotesk Variable", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Bricolage Grotesque Variable", "Hanken Grotesk Variable", sans-serif;
+  --font-mono: "JetBrains Mono Variable", ui-monospace, SFMono-Regular, monospace;
+
+  /* Warm, paper-like neutrals. */
+  --color-paper: #f6f3ec;
+  --color-surface: #ffffff;
+  --color-ink: #1c1b17;
+  --color-muted: #75726a;
+  --color-faint: #9c988d;
+  --color-line: #ece7dc;
+  --color-line-strong: #ddd6c7;
+
+  /* Friendly, fresh brand green (sync / up-to-date). */
+  --color-brand-50: #edf8f0;
+  --color-brand-100: #d3eedc;
+  --color-brand-200: #a6dcbb;
+  --color-brand-300: #71c595;
+  --color-brand-400: #41ab73;
+  --color-brand-500: #1f9a5f;
+  --color-brand-600: #157a4b;
+  --color-brand-700: #14613d;
+
+  --shadow-soft: 0 1px 2px rgba(28, 27, 23, 0.04), 0 8px 24px -12px rgba(28, 27, 23, 0.18);
+  --shadow-lift: 0 2px 4px rgba(28, 27, 23, 0.06), 0 20px 44px -16px rgba(28, 27, 23, 0.28);
+}
+
+@layer base {
+  body {
+    margin: 0;
+    min-height: 100vh;
+    background-color: var(--color-paper);
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+    /* Subtle atmosphere: soft brand glows in the corners. */
+    background-image:
+      radial-gradient(120% 80% at 85% -15%, rgba(31, 154, 95, 0.12), transparent 60%),
+      radial-gradient(90% 60% at -10% 0%, rgba(31, 154, 95, 0.05), transparent 55%);
+    background-attachment: fixed;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  ::selection {
+    background: var(--color-brand-200);
+    color: var(--color-brand-700);
+  }
+}
+
+/* Dark theme: override the semantic tokens — every `bg-surface`, `text-ink`,
+   `border-line`, etc. resolves against these variables, so the whole UI adapts. */
+:root {
+  color-scheme: light;
+}
+
+.dark {
+  color-scheme: dark;
+
+  --color-paper: #141310;
+  --color-surface: #1e1d18;
+  --color-ink: #f3f0e7;
+  --color-muted: #a8a496;
+  --color-faint: #7a776b;
+  --color-line: #2a2823;
+  --color-line-strong: #3a382f;
+
+  /* Dark tint behind chips / icon badges (paired with dark:text-brand-300). */
+  --color-brand-50: #16301f;
+}
+
+.dark body {
+  background-image:
+    radial-gradient(120% 80% at 85% -15%, rgba(31, 154, 95, 0.18), transparent 60%),
+    radial-gradient(90% 60% at -10% 0%, rgba(31, 154, 95, 0.08), transparent 55%);
+}
+
+.dark ::selection {
+  background: var(--color-brand-700);
+  color: var(--color-brand-50);
+}
+
+@layer components {
+  .card {
+    @apply rounded-3xl border border-line bg-surface/90 shadow-soft backdrop-blur-sm;
+  }
+
+  .btn {
+    @apply inline-flex cursor-pointer items-center justify-center gap-2 rounded-full font-medium
+      transition duration-150 focus-visible:outline-none focus-visible:ring-2
+      focus-visible:ring-brand-400 focus-visible:ring-offset-2 focus-visible:ring-offset-paper
+      disabled:cursor-not-allowed disabled:opacity-45 disabled:active:scale-100;
+  }
+  .btn-md {
+    @apply h-11 px-5 text-[0.95rem];
+  }
+  .btn-sm {
+    @apply h-9 px-3.5 text-sm;
+  }
+  .btn-primary {
+    @apply bg-brand-500 text-white shadow-soft hover:bg-brand-600 active:scale-[0.98];
+  }
+  .btn-ghost {
+    @apply border border-line-strong bg-surface text-ink hover:bg-paper active:scale-[0.98];
+  }
+  .btn-danger {
+    @apply border border-red-200 text-red-600 hover:bg-red-50 active:scale-[0.98]
+      dark:border-red-500/40 dark:text-red-400 dark:hover:bg-red-500/10;
+  }
+
+  .input {
+    @apply h-11 w-full rounded-xl border border-line-strong bg-paper/50 px-3.5 text-ink
+      transition placeholder:text-faint focus:border-brand-400 focus:bg-surface
+      focus:outline-none focus:ring-4 focus:ring-brand-100 dark:focus:ring-brand-500/25;
+  }
+  .label {
+    @apply mb-1.5 block text-sm font-medium text-muted;
+  }
+  .chip {
+    @apply inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium;
+  }
+}
+
+/* Orchestrated entrance — staggered via inline animation-delay. */
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.animate-rise {
+  animation: rise 0.6s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+
+.animate-fade {
+  animation: fade-in 0.4s ease both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-rise,
+  .animate-fade {
+    animation: none;
+  }
+}

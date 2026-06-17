@@ -1,0 +1,205 @@
+import { useCallback, useEffect, useState } from 'react';
+import { listPayloads, updateAll } from './api';
+import { AddMirrorForm } from './components/AddMirrorForm';
+import { PayloadTable } from './components/PayloadTable';
+import { SchedulerPanel } from './components/SchedulerPanel';
+import { Toast } from './components/Toast';
+import type { ToastMessage } from './components/Toast';
+import {
+    IconExternal,
+    IconMoon,
+    IconSun,
+    IconSync,
+    Logo,
+} from './components/icons';
+import { useTheme } from './useTheme';
+import type { Payload } from './types';
+
+export function App() {
+    const [payloads, setPayloads] = useState<Payload[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [updatingAll, setUpdatingAll] = useState(false);
+    const [busyName, setBusyName] = useState<string | null>(null);
+    const [toast, setToast] = useState<ToastMessage | null>(null);
+    const { theme, toggle: toggleTheme } = useTheme();
+
+    const notify = useCallback((kind: ToastMessage['kind'], text: string) => {
+        setToast({ kind, text });
+    }, []);
+
+    // Effect: synchronize local list with the backend on mount (external system).
+    const refresh = useCallback(async () => {
+        setLoading(true);
+        try {
+            setPayloads(await listPayloads());
+        } catch (err) {
+            notify(
+                'error',
+                err instanceof Error ? err.message : 'Failed to load mirrors.'
+            );
+        } finally {
+            setLoading(false);
+        }
+    }, [notify]);
+
+    useEffect(() => {
+        void refresh();
+    }, [refresh]);
+
+    const anyBusy = updatingAll || busyName !== null;
+
+    function handleAdded(payload: Payload) {
+        notify('success', `Added ${payload.name} (${payload.version ?? '?'}).`);
+        void refresh();
+    }
+
+    function handleUpdated(item: Payload, message: string, changed: boolean) {
+        setPayloads((prev) =>
+            prev.map((p) => (p.name === item.name ? item : p))
+        );
+        notify(changed ? 'success' : 'info', message);
+    }
+
+    function handleRemoved(name: string) {
+        setPayloads((prev) => prev.filter((p) => p.name !== name));
+        notify('success', `Removed ${name}.`);
+    }
+
+    async function handleUpdateAll() {
+        setUpdatingAll(true);
+        try {
+            const results = await updateAll();
+            const changed = results.filter((r) => r.updated).length;
+            setPayloads(await listPayloads());
+            notify(
+                changed > 0 ? 'success' : 'info',
+                changed > 0
+                    ? `Updated ${changed} of ${results.length} mirrors.`
+                    : `All ${results.length} mirrors already up to date.`
+            );
+        } catch (err) {
+            notify(
+                'error',
+                err instanceof Error ? err.message : 'Update-all failed.'
+            );
+        } finally {
+            setUpdatingAll(false);
+        }
+    }
+
+    return (
+        <div className="mx-auto max-w-5xl px-5 py-10 md:py-14">
+            <header className="animate-rise flex flex-wrap items-center justify-between gap-5">
+                <div className="flex items-center gap-3.5">
+                    <Logo />
+                    <div>
+                        <h1 className="font-display text-3xl font-bold leading-none tracking-tight text-ink">
+                            Payloads Mirror
+                        </h1>
+                        <p className="mt-1.5 text-[0.95rem] text-muted">
+                            {loading
+                                ? 'Loading…'
+                                : `${payloads.length} PS5 payloads mirrored & kept fresh`}
+                        </p>
+                    </div>
+                </div>
+
+                <div className="flex items-center gap-2.5">
+                    <a
+                        href="/payloads.json"
+                        target="_blank"
+                        rel="noreferrer noopener"
+                        className="btn btn-ghost btn-md font-mono"
+                        title="Open the public payloads.json feed">
+                        payloads.json
+                        <IconExternal className="h-4 w-4" />
+                    </a>
+                    <button
+                        type="button"
+                        className="btn btn-ghost h-11 w-11 !px-0"
+                        onClick={toggleTheme}
+                        aria-label={
+                            theme === 'dark'
+                                ? 'Switch to light mode'
+                                : 'Switch to dark mode'
+                        }
+                        title={theme === 'dark' ? 'Light mode' : 'Dark mode'}>
+                        {theme === 'dark' ? (
+                            <IconSun className="h-[1.15rem] w-[1.15rem]" />
+                        ) : (
+                            <IconMoon className="h-[1.15rem] w-[1.15rem]" />
+                        )}
+                    </button>
+                    <button
+                        type="button"
+                        className="btn btn-md btn-primary"
+                        onClick={handleUpdateAll}
+                        disabled={anyBusy || loading}>
+                        <IconSync
+                            className={`h-4 w-4 ${updatingAll ? 'animate-spin' : ''}`}
+                        />
+                        {updatingAll ? 'Updating…' : 'Update all'}
+                    </button>
+                </div>
+            </header>
+
+            <main className="mt-9 flex flex-col gap-6">
+                <div className="grid gap-6 md:grid-cols-2">
+                    <div
+                        className="animate-rise"
+                        style={{ animationDelay: '0.06s' }}>
+                        <AddMirrorForm
+                            onAdded={handleAdded}
+                            onError={(m) => notify('error', m)}
+                        />
+                    </div>
+                    <div
+                        className="animate-rise"
+                        style={{ animationDelay: '0.12s' }}>
+                        <SchedulerPanel
+                            onError={(m) => notify('error', m)}
+                            onRunComplete={(summary) => {
+                                notify('info', `Scheduled update: ${summary}`);
+                                void refresh();
+                            }}
+                        />
+                    </div>
+                </div>
+
+                <section
+                    className="animate-rise"
+                    style={{ animationDelay: '0.18s' }}
+                    aria-busy={loading}>
+                    <div className="mb-3 flex items-center justify-between gap-3 px-1">
+                        <h2 className="font-display text-xl font-semibold text-ink">
+                            Mirrors
+                        </h2>
+                        <div className="flex items-center gap-3">
+                            {!loading && (
+                                <span className="text-sm text-faint">
+                                    {payloads.length} total
+                                </span>
+                            )}
+                        </div>
+                    </div>
+                    {loading ? (
+                        <div className="card grid place-items-center px-6 py-16 text-muted">
+                            Loading mirrors…
+                        </div>
+                    ) : (
+                        <PayloadTable
+                            payloads={payloads}
+                            busyName={busyName}
+                            onSetBusy={setBusyName}
+                            onUpdated={handleUpdated}
+                            onRemoved={handleRemoved}
+                            onError={(m) => notify('error', m)}
+                        />
+                    )}
+                </section>
+            </main>
+
+            <Toast toast={toast} onDismiss={() => setToast(null)} />
+        </div>
+    );
+}
