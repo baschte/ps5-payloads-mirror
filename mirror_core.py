@@ -163,16 +163,27 @@ def load_payloads():
 
 
 def save_payloads(payloads):
-    """Sort, reorder and persist payloads atomically, then regenerate the README."""
+    """Sort, reorder and persist payloads, then regenerate the README.
+
+    Prefers an atomic write (temp file + ``os.replace``) so a concurrent reader
+    never sees a half-written file. When the target is a Docker bind-mounted
+    *file*, renaming onto it fails (``EBUSY``/``EXDEV`` — it's a mount point), so
+    we fall back to an in-place write. Writers are serialized by ``DATA_LOCK``.
+    """
     payloads.sort(key=lambda x: x.get("last_update", ""), reverse=True)
     payloads = [reorder_item(p) for p in payloads]
-    # Atomic write: a concurrent reader sees either the old or new file, never
-    # a half-written one.
+    data = json.dumps(payloads, indent=2)
+
     fd, tmp_path = tempfile.mkstemp(dir=str(BASE_DIR), suffix=".json.tmp")
     try:
         with os.fdopen(fd, "w") as f:
-            json.dump(payloads, f, indent=2)
-        os.replace(tmp_path, JSON_FILE)
+            f.write(data)
+        try:
+            os.replace(tmp_path, JSON_FILE)
+        except OSError:
+            # Bind-mounted file: can't rename onto a mount point — write in place.
+            with open(JSON_FILE, "w") as f:
+                f.write(data)
     finally:
         if os.path.exists(tmp_path):
             os.remove(tmp_path)
