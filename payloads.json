@@ -1,124 +1,127 @@
-[
-  {
-    "name": "PS5-Game-Compressor",
-    "filename": "PS5-Game-Compressor_v1.0.0.elf",
-    "url": "https://github.com/baschte/ps5-payloads-mirror/releases/download/payloads-mirror/PS5-Game-Compressor_v1.0.0.elf",
-    "source": "https://github.com/juma-sayeh/PS5-Game-Compressor/releases",
-    "source_direct": "https://github.com/juma-sayeh/PS5-Game-Compressor/releases/download/v1.0.0/game-compressor.elf",
-    "description": "Standalone PS5 payload for compressing, unpacking, validating, repairing, and moving ShadowMountPlus-mounted games from a simple web UI.",
-    "last_update": "2026-06-17",
-    "version": "v1.0.0",
-    "checksum": "29eb7e0b2d46ff23203597ce93ff463d7c4df65ace48b08ca65be3cb184491b2"
-  },
-  {
-    "name": "ps5upload",
-    "filename": "ps5upload_v3.3.22.elf",
-    "url": "https://github.com/baschte/ps5-payloads-mirror/releases/download/payloads-mirror/ps5upload_v3.3.22.elf",
-    "source": "https://github.com/phantomptr/ps5upload/releases",
-    "source_direct": "https://github.com/phantomptr/ps5upload/releases/download/v3.3.22/ps5upload-3.3.22.elf",
-    "description": "Fast, reliable transfers from your computer to your PS5.",
-    "last_update": "2026-06-17",
-    "version": "v3.3.22",
-    "checksum": "6fac6e1fa572e8780a39b7d32f418eff8900f9d6c921d6aad926270db30f9527"
-  },
-  {
-    "name": "pegasus-dl",
-    "filename": "pegasus-dl_v1.4.0.elf",
-    "url": "https://github.com/baschte/ps5-payloads-mirror/releases/download/payloads-mirror/pegasus-dl_v1.4.0.elf",
-    "source": "https://github.com/pegasus-ps5/pegasus-dl/releases",
-    "source_direct": "https://github.com/pegasus-ps5/pegasus-dl/releases/download/v1.4.0/pegasus_dl.elf",
-    "description": "Direct package downloading from your PS5, managed through a local web interface.",
-    "last_update": "2026-06-15",
-    "version": "v1.4.0",
-    "checksum": "3e2731fba643b7f303a6a6dc2092edf3bca213cc44d73463c9f74d3887c7bc09"
-  },
-  {
-    "name": "CheatRunner",
-    "filename": "CheatRunner_v0.13.elf",
-    "url": "https://github.com/baschte/ps5-payloads-mirror/releases/download/payloads-mirror/CheatRunner_v0.13.elf",
-    "source": "https://github.com/notmaj0r/CheatRunner/releases",
-    "source_direct": "https://github.com/notmaj0r/CheatRunner/releases/download/v0.13/CheatRunner.elf",
-    "description": "CheatRunner is a PS5 web launcher and cheat trainer for already-jailbroken PS5 consoles.",
-    "last_update": "2026-06-15",
-    "version": "v0.13",
-    "checksum": "0490d46c0ae8d3029106551f588ca9479f32df485678eb73c29685ad3072090b"
-  },
-  {
-    "name": "garlic-savemgr",
-    "filename": "garlic-savemgr_v1.10.elf",
-    "url": "https://github.com/baschte/ps5-payloads-mirror/releases/download/payloads-mirror/garlic-savemgr_v1.10.elf",
-    "source": "https://git.etawen.dev/earthonion/garlic-savemgr/releases",
-    "source_direct": "https://git.etawen.dev/earthonion/garlic-savemgr/releases/download/v1.10/garlic-savemgr.elf",
-    "description": "PS5 save decrypt/encrypt/browse with embedded web UI.",
-    "last_update": "2026-06-11",
-    "version": "v1.10",
-    "checksum": "b82bf7aa83943c957f56c1b65c0739057d6b21f5b417215db17c9418fc265a27"
-  },
-  {
-    "name": "kstuff-lite",
-    "filename": "kstuff-lite_v1.07.elf",
-    "url": "https://github.com/baschte/ps5-payloads-mirror/releases/download/payloads-mirror/kstuff-lite_v1.07.elf",
-    "source": "https://github.com/EchoStretch/kstuff-lite/releases",
-    "source_direct": "https://github.com/EchoStretch/kstuff-lite/releases/download/v1.07/kstuff.elf",
-    "description": "Lite version of kstuff",
-    "last_update": "2026-06-08",
-    "version": "v1.07",
-    "checksum": "eb730eccd1a333f94e918076d053b4d20701f7c97e6356e591cebabfb4e0fa2d"
-  },
-  {
-    "name": "ShadowMountPlus",
-    "filename": "ShadowMountPlus_1.6test15-fix2.elf",
-    "url": "https://github.com/baschte/ps5-payloads-mirror/releases/download/payloads-mirror/ShadowMountPlus_1.6test15-fix2.elf",
-    "source": "https://github.com/drakmor/ShadowMountPlus/releases",
-    "source_direct": "https://github.com/drakmor/ShadowMountPlus/releases/download/1.6test15-fix2/ShadowMountPlus_1.6test15-fix2.zip",
-    "extract_file": "shadowmountplus.elf",
-    "description": "A fully automated, background 'Auto-Mounter' payload for Jailbroken PlayStation 5 consoles.",
-    "last_update": "2026-06-03",
-    "version": "1.6test15-fix2",
-    "checksum": "8ab32f4cede840a73515c05697fe81759bc98cf41fc22b43e09943262f447e99"
-  },
-  {
-    "name": "ps5debug-NG",
-    "filename": "ps5debug-NG_1.2.7.elf",
-    "url": "https://github.com/baschte/ps5-payloads-mirror/releases/download/payloads-mirror/ps5debug-NG_1.2.7.elf",
-    "source": "https://github.com/OpenSourcereR-dev/ps5debug-NG/releases",
-    "source_direct": "https://github.com/OpenSourcereR-dev/ps5debug-NG/releases/download/1.2.7/ps5debug-NG_v1.2.7.elf",
-    "description": "PS5 debugger payload - userland TCP wire-protocol server hosted inside SceShellCore.",
-    "last_update": "2026-06-03",
-    "version": "1.2.7",
-    "checksum": "bfb07865611df05d4a07236f375e7e0b64e2f387124052fa67510f8b4fcae1a7"
-  },
-  {
-    "name": "klogsrv",
-    "filename": "klogsrv_v0.8.elf",
-    "url": "https://github.com/baschte/ps5-payloads-mirror/releases/download/payloads-mirror/klogsrv_v0.8.elf",
-    "source": "https://github.com/ps5-payload-dev/klogsrv/releases",
-    "source_direct": "https://github.com/ps5-payload-dev/klogsrv/releases/download/v0.8/klogsrv-ps5.elf",
-    "description": "A simple socket server that redirects /dev/klog to sockets connected on port 3232",
-    "last_update": "2026-05-12",
-    "version": "v0.8",
-    "checksum": "f6eb1b415ecf3340b89a56a0cb04ba5c714430085851ada13a98012b63a5a4cf"
-  },
-  {
-    "name": "shsrv",
-    "filename": "shsrv_v0.18.2.elf",
-    "url": "https://github.com/baschte/ps5-payloads-mirror/releases/download/payloads-mirror/shsrv_v0.18.2.elf",
-    "source": "https://github.com/ps5-payload-dev/shsrv/releases",
-    "source_direct": "https://github.com/ps5-payload-dev/shsrv/releases/download/v0.18.2/shsrv-ps5.elf",
-    "description": "A simple telnet-like shell server for jailbroken PS5s that accepts connections on port 2323",
-    "last_update": "2026-05-12",
-    "version": "v0.18.2",
-    "checksum": "990f7fbcf3761f97db9b97638d3e119352447fb904b2cf70b191c02289e1c69e"
-  },
-  {
-    "name": "ps5-app-dumper",
-    "filename": "ps5-app-dumper_v1.10.elf",
-    "url": "https://github.com/baschte/ps5-payloads-mirror/releases/download/payloads-mirror/ps5-app-dumper_v1.10.elf",
-    "source": "https://github.com/EchoStretch/ps5-app-dumper/releases",
-    "source_direct": "https://github.com/EchoStretch/ps5-app-dumper/releases/download/v1.10/ps5-app-dumper.elf",
-    "description": "A small utility to dump PS5 application files from the console's pfsmnt to a connected USB storage device.",
-    "last_update": "2026-05-03",
-    "version": "v1.10",
-    "checksum": "95382a9e37987d8eb931cbe5db618e77d293099ef4314e3288d9899bd5ac5c00"
-  }
-]
+{
+  "name": "PS5 Payloads Mirror",
+  "payloads": [
+    {
+      "name": "PS5-Game-Compressor",
+      "filename": "PS5-Game-Compressor_v1.0.0.elf",
+      "url": "https://github.com/baschte/ps5-payloads-mirror/releases/download/payloads-mirror/PS5-Game-Compressor_v1.0.0.elf",
+      "source": "https://github.com/juma-sayeh/PS5-Game-Compressor/releases",
+      "source_direct": "https://github.com/juma-sayeh/PS5-Game-Compressor/releases/download/v1.0.0/game-compressor.elf",
+      "description": "Standalone PS5 payload for compressing, unpacking, validating, repairing, and moving ShadowMountPlus-mounted games from a simple web UI.",
+      "last_update": "2026-06-17",
+      "version": "v1.0.0",
+      "checksum": "29eb7e0b2d46ff23203597ce93ff463d7c4df65ace48b08ca65be3cb184491b2"
+    },
+    {
+      "name": "ps5upload",
+      "filename": "ps5upload_v3.3.22.elf",
+      "url": "https://github.com/baschte/ps5-payloads-mirror/releases/download/payloads-mirror/ps5upload_v3.3.22.elf",
+      "source": "https://github.com/phantomptr/ps5upload/releases",
+      "source_direct": "https://github.com/phantomptr/ps5upload/releases/download/v3.3.22/ps5upload-3.3.22.elf",
+      "description": "Fast, reliable transfers from your computer to your PS5.",
+      "last_update": "2026-06-17",
+      "version": "v3.3.22",
+      "checksum": "6fac6e1fa572e8780a39b7d32f418eff8900f9d6c921d6aad926270db30f9527"
+    },
+    {
+      "name": "pegasus-dl",
+      "filename": "pegasus-dl_v1.4.0.elf",
+      "url": "https://github.com/baschte/ps5-payloads-mirror/releases/download/payloads-mirror/pegasus-dl_v1.4.0.elf",
+      "source": "https://github.com/pegasus-ps5/pegasus-dl/releases",
+      "source_direct": "https://github.com/pegasus-ps5/pegasus-dl/releases/download/v1.4.0/pegasus_dl.elf",
+      "description": "Direct package downloading from your PS5, managed through a local web interface.",
+      "last_update": "2026-06-15",
+      "version": "v1.4.0",
+      "checksum": "3e2731fba643b7f303a6a6dc2092edf3bca213cc44d73463c9f74d3887c7bc09"
+    },
+    {
+      "name": "CheatRunner",
+      "filename": "CheatRunner_v0.13.elf",
+      "url": "https://github.com/baschte/ps5-payloads-mirror/releases/download/payloads-mirror/CheatRunner_v0.13.elf",
+      "source": "https://github.com/notmaj0r/CheatRunner/releases",
+      "source_direct": "https://github.com/notmaj0r/CheatRunner/releases/download/v0.13/CheatRunner.elf",
+      "description": "CheatRunner is a PS5 web launcher and cheat trainer for already-jailbroken PS5 consoles.",
+      "last_update": "2026-06-15",
+      "version": "v0.13",
+      "checksum": "0490d46c0ae8d3029106551f588ca9479f32df485678eb73c29685ad3072090b"
+    },
+    {
+      "name": "garlic-savemgr",
+      "filename": "garlic-savemgr_v1.10.elf",
+      "url": "https://github.com/baschte/ps5-payloads-mirror/releases/download/payloads-mirror/garlic-savemgr_v1.10.elf",
+      "source": "https://git.etawen.dev/earthonion/garlic-savemgr/releases",
+      "source_direct": "https://git.etawen.dev/earthonion/garlic-savemgr/releases/download/v1.10/garlic-savemgr.elf",
+      "description": "PS5 save decrypt/encrypt/browse with embedded web UI.",
+      "last_update": "2026-06-11",
+      "version": "v1.10",
+      "checksum": "b82bf7aa83943c957f56c1b65c0739057d6b21f5b417215db17c9418fc265a27"
+    },
+    {
+      "name": "kstuff-lite",
+      "filename": "kstuff-lite_v1.07.elf",
+      "url": "https://github.com/baschte/ps5-payloads-mirror/releases/download/payloads-mirror/kstuff-lite_v1.07.elf",
+      "source": "https://github.com/EchoStretch/kstuff-lite/releases",
+      "source_direct": "https://github.com/EchoStretch/kstuff-lite/releases/download/v1.07/kstuff.elf",
+      "description": "Lite version of kstuff",
+      "last_update": "2026-06-08",
+      "version": "v1.07",
+      "checksum": "eb730eccd1a333f94e918076d053b4d20701f7c97e6356e591cebabfb4e0fa2d"
+    },
+    {
+      "name": "ShadowMountPlus",
+      "filename": "ShadowMountPlus_1.6test15-fix2.elf",
+      "url": "https://github.com/baschte/ps5-payloads-mirror/releases/download/payloads-mirror/ShadowMountPlus_1.6test15-fix2.elf",
+      "source": "https://github.com/drakmor/ShadowMountPlus/releases",
+      "source_direct": "https://github.com/drakmor/ShadowMountPlus/releases/download/1.6test15-fix2/ShadowMountPlus_1.6test15-fix2.zip",
+      "extract_file": "shadowmountplus.elf",
+      "description": "A fully automated, background 'Auto-Mounter' payload for Jailbroken PlayStation 5 consoles.",
+      "last_update": "2026-06-03",
+      "version": "1.6test15-fix2",
+      "checksum": "8ab32f4cede840a73515c05697fe81759bc98cf41fc22b43e09943262f447e99"
+    },
+    {
+      "name": "ps5debug-NG",
+      "filename": "ps5debug-NG_1.2.7.elf",
+      "url": "https://github.com/baschte/ps5-payloads-mirror/releases/download/payloads-mirror/ps5debug-NG_1.2.7.elf",
+      "source": "https://github.com/OpenSourcereR-dev/ps5debug-NG/releases",
+      "source_direct": "https://github.com/OpenSourcereR-dev/ps5debug-NG/releases/download/1.2.7/ps5debug-NG_v1.2.7.elf",
+      "description": "PS5 debugger payload - userland TCP wire-protocol server hosted inside SceShellCore.",
+      "last_update": "2026-06-03",
+      "version": "1.2.7",
+      "checksum": "bfb07865611df05d4a07236f375e7e0b64e2f387124052fa67510f8b4fcae1a7"
+    },
+    {
+      "name": "klogsrv",
+      "filename": "klogsrv_v0.8.elf",
+      "url": "https://github.com/baschte/ps5-payloads-mirror/releases/download/payloads-mirror/klogsrv_v0.8.elf",
+      "source": "https://github.com/ps5-payload-dev/klogsrv/releases",
+      "source_direct": "https://github.com/ps5-payload-dev/klogsrv/releases/download/v0.8/klogsrv-ps5.elf",
+      "description": "A simple socket server that redirects /dev/klog to sockets connected on port 3232",
+      "last_update": "2026-05-12",
+      "version": "v0.8",
+      "checksum": "f6eb1b415ecf3340b89a56a0cb04ba5c714430085851ada13a98012b63a5a4cf"
+    },
+    {
+      "name": "shsrv",
+      "filename": "shsrv_v0.18.2.elf",
+      "url": "https://github.com/baschte/ps5-payloads-mirror/releases/download/payloads-mirror/shsrv_v0.18.2.elf",
+      "source": "https://github.com/ps5-payload-dev/shsrv/releases",
+      "source_direct": "https://github.com/ps5-payload-dev/shsrv/releases/download/v0.18.2/shsrv-ps5.elf",
+      "description": "A simple telnet-like shell server for jailbroken PS5s that accepts connections on port 2323",
+      "last_update": "2026-05-12",
+      "version": "v0.18.2",
+      "checksum": "990f7fbcf3761f97db9b97638d3e119352447fb904b2cf70b191c02289e1c69e"
+    },
+    {
+      "name": "ps5-app-dumper",
+      "filename": "ps5-app-dumper_v1.10.elf",
+      "url": "https://github.com/baschte/ps5-payloads-mirror/releases/download/payloads-mirror/ps5-app-dumper_v1.10.elf",
+      "source": "https://github.com/EchoStretch/ps5-app-dumper/releases",
+      "source_direct": "https://github.com/EchoStretch/ps5-app-dumper/releases/download/v1.10/ps5-app-dumper.elf",
+      "description": "A small utility to dump PS5 application files from the console's pfsmnt to a connected USB storage device.",
+      "last_update": "2026-05-03",
+      "version": "v1.10",
+      "checksum": "95382a9e37987d8eb931cbe5db618e77d293099ef4314e3288d9899bd5ac5c00"
+    }
+  ]
+}
