@@ -11,6 +11,17 @@
     "checksum": "29eb7e0b2d46ff23203597ce93ff463d7c4df65ace48b08ca65be3cb184491b2"
   },
   {
+    "name": "ps5upload",
+    "filename": "ps5upload_v3.3.22.elf",
+    "url": "https://github.com/baschte/ps5-payloads-mirror/releases/download/payloads-mirror/ps5upload_v3.3.22.elf",
+    "source": "https://github.com/phantomptr/ps5upload/releases",
+    "source_direct": "https://github.com/phantomptr/ps5upload/releases/download/v3.3.22/ps5upload-3.3.22.elf",
+    "description": "Fast, reliable transfers from your computer to your PS5.",
+    "last_update": "2026-06-17",
+    "version": "v3.3.22",
+    "checksum": "6fac6e1fa572e8780a39b7d32f418eff8900f9d6c921d6aad926270db30f9527"
+  },
+  {
     "name": "pegasus-dl",
     "filename": "pegasus-dl_v1.4.0.elf",
     "url": "https://github.com/baschte/ps5-payloads-mirror/releases/download/payloads-mirror/pegasus-dl_v1.4.0.elf",
