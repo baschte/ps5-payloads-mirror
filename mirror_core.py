@@ -19,6 +19,7 @@ import shutil
 import subprocess
 import tempfile
 import threading
+import urllib.error
 import urllib.request
 import zipfile
 from pathlib import Path
@@ -97,17 +98,53 @@ def get_repo_info(url):
     return None, None, None
 
 
+def _newest_release(releases):
+    """Pick the newest non-draft release from a /releases listing.
+
+    The listing is newest-first, so the first non-draft wins — this includes
+    pre-releases, so repos that only publish pre-releases still resolve.
+    """
+    for rel in releases:
+        if not rel.get("draft"):
+            return rel
+    return None
+
+
 def get_latest_release(domain, owner, repo):
-    """Fetch the latest release JSON for github.com (via gh) or a Gitea host."""
+    """Fetch the latest release JSON for github.com (via gh) or a Gitea host.
+
+    Prefers the stable "latest" release; if there is none (e.g. the repo only
+    publishes pre-releases), falls back to the newest non-draft release.
+    """
     try:
         if domain == "github.com":
-            cmd = ["gh", "api", f"repos/{owner}/{repo}/releases/latest"]
-            result = subprocess.run(cmd, capture_output=True, text=True, check=True)
-            return json.loads(result.stdout)
-        api_url = f"https://{domain}/api/v1/repos/{owner}/{repo}/releases/latest"
-        req = urllib.request.Request(api_url, headers={"User-Agent": "Mozilla/5.0"})
-        with urllib.request.urlopen(req) as response:
-            return json.loads(response.read().decode("utf-8"))
+            latest = subprocess.run(
+                ["gh", "api", f"repos/{owner}/{repo}/releases/latest"],
+                capture_output=True, text=True,
+            )
+            if latest.returncode == 0:
+                return json.loads(latest.stdout)
+            # No stable release → fall back to the newest non-draft (incl. pre-release).
+            listing = subprocess.run(
+                ["gh", "api", f"repos/{owner}/{repo}/releases"],
+                capture_output=True, text=True,
+            )
+            if listing.returncode == 0:
+                return _newest_release(json.loads(listing.stdout))
+            return None
+
+        def _get(path):
+            url = f"https://{domain}/api/v1/repos/{owner}/{repo}/{path}"
+            req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
+            with urllib.request.urlopen(req) as response:
+                return json.loads(response.read().decode("utf-8"))
+
+        try:
+            return _get("releases/latest")
+        except urllib.error.HTTPError as e:
+            if e.code != 404:
+                raise
+            return _newest_release(_get("releases"))
     except Exception as e:
         print(f"Error fetching {domain}/{owner}/{repo}: {e}")
         return None
