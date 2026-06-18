@@ -38,7 +38,11 @@ BASE_URL = "https://github.com/baschte/ps5-payloads-mirror/releases/download/pay
 MIRROR_OWNER = "baschte"
 MIRROR_REPO = "ps5-payloads-mirror"
 
-DEFAULT_TITLE = "PS5 Payloads Mirror"
+# Fallback title used only when payloads.json has no name (e.g. a freshly
+# migrated legacy file). A name already stored in the file always wins, so the
+# UI/Action keep whatever was set. Configure once via the MIRROR_TITLE env var
+# and you never have to re-enter it.
+DEFAULT_TITLE = os.environ.get("MIRROR_TITLE") or "PS5 Payloads Mirror"
 
 FIELD_ORDER = [
     "name", "filename", "url", "source", "source_direct",

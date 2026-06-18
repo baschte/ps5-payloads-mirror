@@ -22,6 +22,8 @@ services:
       # gh CLI uses this token to read github.com release metadata.
       # Non-GitHub hosts (e.g. Gitea) are reached directly and need no token.
       GH_TOKEN: ${GH_TOKEN:-}
+      # Durable fallback title (a title set in the UI still takes precedence).
+      MIRROR_TITLE: ${MIRROR_TITLE:-}
       # Optional Basic Auth for the UI + management API (set both to enable).
       # /payloads.json and /api/health stay public regardless.
       MIRROR_AUTH_USER: ${MIRROR_AUTH_USER:-}
