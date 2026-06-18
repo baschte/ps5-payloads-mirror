@@ -113,6 +113,12 @@ def commit_and_push() -> dict:
     if not is_repo():
         raise GitError("Not a git repository — mount the repo into the container (see WEBUI.md).")
 
+    # Clean up a rebase left in progress by a previous failed attempt, so the
+    # repo isn't permanently stuck on a server with no shell access.
+    git_dir = mirror_core.BASE_DIR / ".git"
+    if (git_dir / "rebase-merge").exists() or (git_dir / "rebase-apply").exists():
+        _run(["rebase", "--abort"])
+
     branch = _current_branch()
     remote = _https_remote()
 
@@ -132,17 +138,20 @@ def commit_and_push() -> dict:
     if commit.returncode != 0:
         raise GitError(_sanitize(commit.stderr) or "git commit failed.")
 
-    # MUST rebase onto the latest remote before pushing.
+    # MUST rebase onto the latest remote before pushing. payloads.json and
+    # README.md are generated artifacts, and a parallel writer (the daily
+    # GitHub Action) commits the same files — so a plain rebase would conflict.
+    # "-X theirs" auto-resolves in favour of the commit being replayed (our
+    # current UI state wins), which is the intended "publish my state" behaviour.
     pull = _run([
         "-c", f"user.name={GIT_AUTHOR_NAME}",
         "-c", f"user.email={GIT_AUTHOR_EMAIL}",
-        "pull", "--rebase", remote, branch,
+        "pull", "--rebase", "-X", "theirs", remote, branch,
     ], network=True)
     if pull.returncode != 0:
         _run(["rebase", "--abort"])  # best-effort cleanup, leaves the commit intact
         raise GitError(
-            "git pull --rebase failed (likely a conflict) — resolve it manually. "
-            + _sanitize(pull.stderr)
+            "git pull --rebase failed — could not auto-resolve. " + _sanitize(pull.stderr)
         )
 
     push = _run(["push", remote, f"HEAD:{branch}"], network=True)
