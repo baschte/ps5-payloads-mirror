@@ -15,6 +15,7 @@ This repository contains an automated mirror of useful payloads for the PlayStat
 | **ps5debug-NG** | `1.2.7` | PS5 debugger payload - userland TCP wire-protocol server hosted inside SceShellCore. | `2026-06-03` | [Source](https://github.com/OpenSourcereR-dev/ps5debug-NG/releases) | [Download](https://github.com/baschte/ps5-payloads-mirror/releases/download/payloads-mirror/ps5debug-NG_1.2.7.elf) |
 | **klogsrv** | `v0.8` | A simple socket server that redirects /dev/klog to sockets connected on port 3232 | `2026-05-12` | [Source](https://github.com/ps5-payload-dev/klogsrv/releases) | [Download](https://github.com/baschte/ps5-payloads-mirror/releases/download/payloads-mirror/klogsrv_v0.8.elf) |
 | **shsrv** | `v0.18.2` | A simple telnet-like shell server for jailbroken PS5s that accepts connections on port 2323 | `2026-05-12` | [Source](https://github.com/ps5-payload-dev/shsrv/releases) | [Download](https://github.com/baschte/ps5-payloads-mirror/releases/download/payloads-mirror/shsrv_v0.18.2.elf) |
+| **kstuff-toggle** | `0.6` | Boost homebrew game performance on your PS5 by disabling Kstuff after launching the game. | `2026-05-07` | [Source](https://github.com/EchoStretch/kstuff-toggle/releases) | [Download](https://github.com/baschte/ps5-payloads-mirror/releases/download/payloads-mirror/kstuff-toggle_0.6.elf) |
 <!-- PAYLOADS_END -->
 
 ## Support & Suggestions

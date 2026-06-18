@@ -87,5 +87,17 @@
     "last_update": "2026-05-12",
     "version": "v0.18.2",
     "checksum": "990f7fbcf3761f97db9b97638d3e119352447fb904b2cf70b191c02289e1c69e"
+  },
+  {
+    "name": "kstuff-toggle",
+    "filename": "kstuff-toggle_0.6.elf",
+    "url": "https://github.com/baschte/ps5-payloads-mirror/releases/download/payloads-mirror/kstuff-toggle_0.6.elf",
+    "source": "https://github.com/EchoStretch/kstuff-toggle/releases",
+    "source_direct": "https://github.com/EchoStretch/kstuff-toggle/releases/download/0.6/kstuff-toggle.zip",
+    "extract_file": "kstuff-toggle-3.elf",
+    "description": "Boost homebrew game performance on your PS5 by disabling Kstuff after launching the game.",
+    "last_update": "2026-05-07",
+    "version": "0.6",
+    "checksum": "0e87e92959791d9edf04c314802fcf18ccf37db74ae353d434a0062557f85093"
   }
 ]
