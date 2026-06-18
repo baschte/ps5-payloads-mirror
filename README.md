@@ -16,6 +16,7 @@ This repository contains an automated mirror of useful payloads for the PlayStat
 | **ps5debug-NG** | `1.2.7` | PS5 debugger payload - userland TCP wire-protocol server hosted inside SceShellCore. | `2026-06-03` | [Source](https://github.com/OpenSourcereR-dev/ps5debug-NG/releases) | [Download](https://github.com/baschte/ps5-payloads-mirror/releases/download/payloads-mirror/ps5debug-NG_1.2.7.elf) |
 | **klogsrv** | `v0.8` | A simple socket server that redirects /dev/klog to sockets connected on port 3232 | `2026-05-12` | [Source](https://github.com/ps5-payload-dev/klogsrv/releases) | [Download](https://github.com/baschte/ps5-payloads-mirror/releases/download/payloads-mirror/klogsrv_v0.8.elf) |
 | **shsrv** | `v0.18.2` | A simple telnet-like shell server for jailbroken PS5s that accepts connections on port 2323 | `2026-05-12` | [Source](https://github.com/ps5-payload-dev/shsrv/releases) | [Download](https://github.com/baschte/ps5-payloads-mirror/releases/download/payloads-mirror/shsrv_v0.18.2.elf) |
+| **ps5-app-dumper** | `v1.10` | A small utility to dump PS5 application files from the console's pfsmnt to a connected USB storage device. | `2026-05-03` | [Source](https://github.com/EchoStretch/ps5-app-dumper/releases) | [Download](https://github.com/baschte/ps5-payloads-mirror/releases/download/payloads-mirror/ps5-app-dumper_v1.10.elf) |
 <!-- PAYLOADS_END -->
 
 ## Support & Suggestions
