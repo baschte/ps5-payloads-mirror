@@ -3,6 +3,8 @@ name: Automated Payloads Mirror
 on:
   schedule:
     - cron: '0 */2 * * *' # Every 2 hours
+  push:
+    branches: [main] # Also run on every commit to main
   workflow_dispatch: # Manual trigger
 
 permissions:
