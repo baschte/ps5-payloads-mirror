@@ -33,6 +33,17 @@
     "checksum": "3e2731fba643b7f303a6a6dc2092edf3bca213cc44d73463c9f74d3887c7bc09"
   },
   {
+    "name": "CheatRunner",
+    "filename": "CheatRunner_v0.13.elf",
+    "url": "https://github.com/baschte/ps5-payloads-mirror/releases/download/payloads-mirror/CheatRunner_v0.13.elf",
+    "source": "https://github.com/notmaj0r/CheatRunner/releases",
+    "source_direct": "https://github.com/notmaj0r/CheatRunner/releases/download/v0.13/CheatRunner.elf",
+    "description": "CheatRunner is a PS5 web launcher and cheat trainer for already-jailbroken PS5 consoles.",
+    "last_update": "2026-06-15",
+    "version": "v0.13",
+    "checksum": "0490d46c0ae8d3029106551f588ca9479f32df485678eb73c29685ad3072090b"
+  },
+  {
     "name": "garlic-savemgr",
     "filename": "garlic-savemgr_v1.10.elf",
     "url": "https://github.com/baschte/ps5-payloads-mirror/releases/download/payloads-mirror/garlic-savemgr_v1.10.elf",
