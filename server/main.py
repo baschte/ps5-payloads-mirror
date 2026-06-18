@@ -13,6 +13,7 @@ import base64
 import os
 import secrets
 from contextlib import asynccontextmanager
+from pathlib import Path
 from typing import Annotated, Any
 
 from fastapi import FastAPI, HTTPException, Path as PathParam, Request, Response
@@ -22,6 +23,7 @@ from pydantic import BaseModel, Field
 
 import mirror_core
 from mirror_core import DuplicateError, MirrorError, NotFoundError, ZipExtractNeeded
+from server import git_ops
 from server.scheduler import MAX_INTERVAL_HOURS, MIN_INTERVAL_HOURS, Scheduler
 
 scheduler = Scheduler()
@@ -36,7 +38,26 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(title="PS5 Payloads Mirror", version="1.0.0", lifespan=lifespan)
 
-DIST_DIR = mirror_core.BASE_DIR / "web" / "dist"
+
+def _resolve_dist_dir() -> Path:
+    """Locate the built frontend.
+
+    Prefers /opt/web/dist (baked into the image, outside /app) so it isn't
+    shadowed when the whole repo is bind-mounted at /app. Falls back to the
+    in-repo build for local dev.
+    """
+    candidates = [
+        os.environ.get("WEB_DIST_DIR"),
+        "/opt/web/dist",
+        str(mirror_core.BASE_DIR / "web" / "dist"),
+    ]
+    for c in candidates:
+        if c and Path(c).is_dir():
+            return Path(c)
+    return Path("/opt/web/dist")
+
+
+DIST_DIR = _resolve_dist_dir()
 
 
 # --------------------------------------------------------------------------- #
@@ -226,6 +247,33 @@ async def set_scheduler(config: SchedulerConfig) -> SchedulerStatus:
 @app.post("/api/scheduler/run-now")
 async def run_scheduler_now() -> SchedulerStatus:
     return await scheduler.run_now()
+
+
+# --------------------------------------------------------------------------- #
+# Git publish
+# --------------------------------------------------------------------------- #
+class GitStatus(BaseModel):
+    enabled: bool
+
+
+class GitPushResult(BaseModel):
+    committed: bool
+    pushed: bool
+    message: str
+
+
+@app.get("/api/git/status")
+def git_status() -> GitStatus:
+    return GitStatus(enabled=git_ops.push_enabled())
+
+
+@app.post("/api/git/push")
+def git_push() -> GitPushResult:
+    try:
+        with mirror_core.DATA_LOCK:
+            return GitPushResult(**git_ops.commit_and_push())
+    except git_ops.GitError as e:
+        raise HTTPException(status_code=400, detail=str(e))
 
 
 @app.get("/api/health")

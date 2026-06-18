@@ -40,6 +40,31 @@ MIRROR_AUTH_PASSWORD=change-me
   and `GET /api/health` (so the container healthcheck keeps working).
 - When the vars are empty/unset, everything stays open (default).
 
+## Publish to GitHub (optional)
+
+A **Publish** button commits `payloads.json` + `README.md`, runs `git pull
+--rebase`, then pushes — so you can persist edits made in the UI straight to the
+GitHub repo. Enable it by setting **all four** env vars:
+
+```
+GIT_USERNAME=your-github-user
+GIT_PASSWORD=ghp_xxx          # a GitHub PAT with repo write access (NOT your password)
+GIT_AUTHOR_NAME=Your Name
+GIT_AUTHOR_EMAIL=you@example.com
+```
+
+Requirements & behaviour:
+- The container needs the **full git working tree**, so `docker-compose.yml`
+  bind-mounts the whole repo (`.:/app`). The built frontend lives at
+  `/opt/web/dist` in the image, so the mount doesn't hide it.
+- Always runs `git pull --rebase <branch>` before pushing; on conflict it does
+  `git rebase --abort` and returns an error (never a force-push).
+- The token is passed to git via a one-shot credential helper from the
+  environment — never written to disk, never in argv, never in the remote URL,
+  and any git output is scrubbed of it before reaching the client.
+- The endpoint sits behind the Basic Auth above. Use HTTPS in production.
+- When the four vars aren't set (or it isn't a git repo), the button is hidden.
+
 ## API
 
 | Method | Path | Purpose |
@@ -52,6 +77,8 @@ MIRROR_AUTH_PASSWORD=change-me
 | `GET` | `/api/scheduler` | Scheduler status (enabled, interval, last/next run) |
 | `PUT` | `/api/scheduler` | Set `{enabled, interval_hours}` (1–24) |
 | `POST` | `/api/scheduler/run-now` | Trigger an update immediately |
+| `GET` | `/api/git/status` | Whether the Publish button is enabled |
+| `POST` | `/api/git/push` | Commit payloads.json + README.md, rebase, push |
 
 ## Run locally (dev)
 

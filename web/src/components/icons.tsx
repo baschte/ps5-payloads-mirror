@@ -79,6 +79,15 @@ export function IconPlay({ className }: IconProps) {
   );
 }
 
+export function IconUpload({ className }: IconProps) {
+  return (
+    <Svg className={className}>
+      <path d="M12 15V4M8 8l4-4 4 4" />
+      <path d="M4 14v4a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-4" />
+    </Svg>
+  );
+}
+
 export function IconSun({ className }: IconProps) {
   return (
     <Svg className={className}>

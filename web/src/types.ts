@@ -31,6 +31,16 @@ export interface SchedulerStatus {
   last_summary: string | null;
 }
 
+export interface GitStatus {
+  enabled: boolean;
+}
+
+export interface GitPushResult {
+  committed: boolean;
+  pushed: boolean;
+  message: string;
+}
+
 /** Error thrown by the API client; `candidates` is set for 422 ZIP-ambiguity. */
 export class ApiError extends Error {
   status: number;

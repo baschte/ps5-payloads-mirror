@@ -26,14 +26,19 @@ services:
       # /payloads.json and /api/health stay public regardless.
       MIRROR_AUTH_USER: ${MIRROR_AUTH_USER:-}
       MIRROR_AUTH_PASSWORD: ${MIRROR_AUTH_PASSWORD:-}
+      # Optional "Publish to GitHub" button: set ALL four to enable commit+push
+      # of payloads.json + README.md. GIT_PASSWORD must be a GitHub token (PAT).
+      GIT_USERNAME: ${GIT_USERNAME:-}
+      GIT_PASSWORD: ${GIT_PASSWORD:-}
+      GIT_AUTHOR_NAME: ${GIT_AUTHOR_NAME:-}
+      GIT_AUTHOR_EMAIL: ${GIT_AUTHOR_EMAIL:-}
 
     volumes:
-      # Persist the mirror data on the host so it survives rebuilds/recreates.
-      # payloads.json + README.md are real files in the repo; payloads/ is a
-      # directory the app populates with the downloaded .elf/.bin binaries.
-      - ./payloads.json:/app/payloads.json
-      - ./README.md:/app/README.md
-      - ./payloads:/app/payloads
+      # Mount the whole repo so the container has the full git working tree
+      # (incl. .git) for the "Publish to GitHub" button, and so payloads.json /
+      # README.md / payloads/ persist on the host. The built frontend lives at
+      # /opt/web/dist inside the image, so this mount does not hide it.
+      - .:/app
 
     healthcheck:
       test: ["CMD", "curl", "-fsS", "http://localhost:8000/api/health"]

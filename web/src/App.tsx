@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import { listPayloads, updateAll } from './api';
+import { getGitStatus, gitPush, listPayloads, updateAll } from './api';
 import { AddMirrorForm } from './components/AddMirrorForm';
 import { PayloadTable } from './components/PayloadTable';
 import { SchedulerPanel } from './components/SchedulerPanel';
@@ -10,6 +10,7 @@ import {
     IconMoon,
     IconSun,
     IconSync,
+    IconUpload,
     Logo,
 } from './components/icons';
 import { useTheme } from './useTheme';
@@ -21,6 +22,8 @@ export function App() {
     const [updatingAll, setUpdatingAll] = useState(false);
     const [busyName, setBusyName] = useState<string | null>(null);
     const [toast, setToast] = useState<ToastMessage | null>(null);
+    const [gitEnabled, setGitEnabled] = useState(false);
+    const [publishing, setPublishing] = useState(false);
     const { theme, toggle: toggleTheme } = useTheme();
 
     const notify = useCallback((kind: ToastMessage['kind'], text: string) => {
@@ -46,7 +49,29 @@ export function App() {
         void refresh();
     }, [refresh]);
 
-    const anyBusy = updatingAll || busyName !== null;
+    // Effect: check once whether the git-publish feature is configured.
+    useEffect(() => {
+        getGitStatus()
+            .then((s) => setGitEnabled(s.enabled))
+            .catch(() => setGitEnabled(false));
+    }, []);
+
+    const anyBusy = updatingAll || busyName !== null || publishing;
+
+    async function handlePublish() {
+        setPublishing(true);
+        try {
+            const result = await gitPush();
+            notify(result.pushed ? 'success' : 'info', result.message);
+        } catch (err) {
+            notify(
+                'error',
+                err instanceof Error ? err.message : 'Publish failed.'
+            );
+        } finally {
+            setPublishing(false);
+        }
+    }
 
     function handleAdded(payload: Payload) {
         notify('success', `Added ${payload.name} (${payload.version ?? '?'}).`);
@@ -114,6 +139,19 @@ export function App() {
                         payloads.json
                         <IconExternal className="h-4 w-4" />
                     </a>
+                    {gitEnabled && (
+                        <button
+                            type="button"
+                            className="btn btn-ghost btn-md"
+                            onClick={handlePublish}
+                            disabled={anyBusy || loading}
+                            title="Commit & push payloads.json + README.md to GitHub">
+                            <IconUpload
+                                className={`h-4 w-4 ${publishing ? 'animate-pulse' : ''}`}
+                            />
+                            {publishing ? 'Publishing…' : 'Publish'}
+                        </button>
+                    )}
                     <button
                         type="button"
                         className="btn btn-ghost h-11 w-11 !px-0"

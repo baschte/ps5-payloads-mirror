@@ -1,5 +1,7 @@
 import { ApiError } from "./types";
 import type {
+  GitPushResult,
+  GitStatus,
   Payload,
   SchedulerStatus,
   UpdateAllResult,
@@ -84,4 +86,12 @@ export function setScheduler(config: {
 
 export function runSchedulerNow(): Promise<SchedulerStatus> {
   return request<SchedulerStatus>("/api/scheduler/run-now", { method: "POST" });
+}
+
+export function getGitStatus(): Promise<GitStatus> {
+  return request<GitStatus>("/api/git/status");
+}
+
+export function gitPush(): Promise<GitPushResult> {
+  return request<GitPushResult>("/api/git/push", { method: "POST" });
 }
