@@ -44,17 +44,6 @@
     "checksum": "eb730eccd1a333f94e918076d053b4d20701f7c97e6356e591cebabfb4e0fa2d"
   },
   {
-    "name": "pldmgr",
-    "filename": "pldmgr_v0.3.1.elf",
-    "url": "https://github.com/baschte/ps5-payloads-mirror/releases/download/payloads-mirror/pldmgr_v0.3.1.elf",
-    "source": "https://github.com/itsPLK/pldmgr/releases",
-    "source_direct": "https://github.com/itsPLK/ps5-payload-manager/releases/download/v0.3.1/pldmgr_v0.3.1.elf",
-    "description": "A modern, web-based dashboard to easily manage, import, and automatically load payloads on your PS5.",
-    "last_update": "2026-06-06",
-    "version": "v0.3.1",
-    "checksum": "518740adbacccb9094fadb07dd424c53ee290f38306449ccc9d6957fdf813c0b"
-  },
-  {
     "name": "ShadowMountPlus",
     "filename": "ShadowMountPlus_1.6test15-fix2.elf",
     "url": "https://github.com/baschte/ps5-payloads-mirror/releases/download/payloads-mirror/ShadowMountPlus_1.6test15-fix2.elf",
@@ -100,17 +89,6 @@
     "checksum": "990f7fbcf3761f97db9b97638d3e119352447fb904b2cf70b191c02289e1c69e"
   },
   {
-    "name": "elfldr",
-    "filename": "elfldr_v0.23.elf",
-    "url": "https://github.com/baschte/ps5-payloads-mirror/releases/download/payloads-mirror/elfldr_v0.23.elf",
-    "source": "https://github.com/ps5-payload-dev/elfldr/releases",
-    "source_direct": "https://github.com/ps5-payload-dev/elfldr/releases/download/v0.23/elfldr-ps5.elf",
-    "description": "An ELF loader for jailbroken PS5s that accepts payloads on port 9021",
-    "last_update": "2026-05-12",
-    "version": "v0.23",
-    "checksum": "092d16ee0ede0c494947efd38d1a17bbd7cc4b022d3858ea898833c188c703e8"
-  },
-  {
     "name": "kstuff-toggle",
     "filename": "kstuff-toggle_0.6.elf",
     "url": "https://github.com/baschte/ps5-payloads-mirror/releases/download/payloads-mirror/kstuff-toggle_0.6.elf",
@@ -121,16 +99,5 @@
     "last_update": "2026-05-07",
     "version": "0.6",
     "checksum": "0e87e92959791d9edf04c314802fcf18ccf37db74ae353d434a0062557f85093"
-  },
-  {
-    "name": "BackPork",
-    "filename": "BackPork_0.1.elf",
-    "url": "https://github.com/baschte/ps5-payloads-mirror/releases/download/payloads-mirror/BackPork_0.1.elf",
-    "source": "https://github.com/BestPig/BackPork/releases",
-    "source_direct": "https://github.com/BestPig/BackPork/releases/download/0.1/ps5-backpork.elf",
-    "description": "Lets you sideload system libraries into PS5 games",
-    "last_update": "2026-04-30",
-    "version": "0.1",
-    "checksum": "d74e4cd119b2bb1fd423f2f5b1c9a7f096b3e588c753af1ab48b983d56216a52"
   }
 ]
