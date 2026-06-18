@@ -37,6 +37,7 @@ export interface CollectionTitle {
 
 export interface GitStatus {
   enabled: boolean;
+  pending: boolean;
 }
 
 export interface GitPushResult {

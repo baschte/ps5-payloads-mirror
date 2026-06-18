@@ -269,6 +269,7 @@ async def run_scheduler_now() -> SchedulerStatus:
 # --------------------------------------------------------------------------- #
 class GitStatus(BaseModel):
     enabled: bool
+    pending: bool
 
 
 class GitPushResult(BaseModel):
@@ -279,7 +280,8 @@ class GitPushResult(BaseModel):
 
 @app.get("/api/git/status")
 def git_status() -> GitStatus:
-    return GitStatus(enabled=git_ops.push_enabled())
+    enabled = git_ops.push_enabled()
+    return GitStatus(enabled=enabled, pending=enabled and git_ops.has_changes())
 
 
 @app.post("/api/git/push")

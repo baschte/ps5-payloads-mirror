@@ -33,6 +33,7 @@ export function App() {
     const [busyName, setBusyName] = useState<string | null>(null);
     const [toast, setToast] = useState<ToastMessage | null>(null);
     const [gitEnabled, setGitEnabled] = useState(false);
+    const [gitPending, setGitPending] = useState(false);
     const [publishing, setPublishing] = useState(false);
     const [title, setTitleState] = useState('');
     const [editingTitle, setEditingTitle] = useState(false);
@@ -63,12 +64,23 @@ export function App() {
         void refresh();
     }, [refresh]);
 
-    // Effect: check once whether the git-publish feature is configured.
-    useEffect(() => {
-        getGitStatus()
-            .then((s) => setGitEnabled(s.enabled))
-            .catch(() => setGitEnabled(false));
+    // Whether git-publish is configured, and whether there's anything to publish.
+    const refreshGit = useCallback(async () => {
+        try {
+            const s = await getGitStatus();
+            setGitEnabled(s.enabled);
+            setGitPending(s.pending);
+        } catch {
+            setGitEnabled(false);
+            setGitPending(false);
+        }
     }, []);
+
+    // Effect: re-check on mount and whenever the payload list changes (add /
+    // update / remove / update-all / scheduled run all replace `payloads`).
+    useEffect(() => {
+        void refreshGit();
+    }, [refreshGit, payloads]);
 
     // Effect: load the collection title on mount.
     useEffect(() => {
@@ -89,6 +101,7 @@ export function App() {
             setTitleState(saved.name);
             setEditingTitle(false);
             notify('success', 'Title updated.');
+            void refreshGit();
         } catch (err) {
             notify(
                 'error',
@@ -106,6 +119,7 @@ export function App() {
         try {
             const result = await gitPush();
             notify(result.pushed ? 'success' : 'info', result.message);
+            void refreshGit();
         } catch (err) {
             notify(
                 'error',
@@ -234,8 +248,12 @@ export function App() {
                             type="button"
                             className="btn btn-ghost btn-md"
                             onClick={handlePublish}
-                            disabled={anyBusy || loading}
-                            title="Commit & push payloads.json + README.md to GitHub">
+                            disabled={anyBusy || loading || !gitPending}
+                            title={
+                                gitPending
+                                    ? 'Commit & push payloads.json + README.md to GitHub'
+                                    : 'Nothing to publish — no pending changes'
+                            }>
                             <IconUpload
                                 className={`h-4 w-4 ${publishing ? 'animate-pulse' : ''}`}
                             />

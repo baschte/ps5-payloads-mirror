@@ -57,6 +57,14 @@ def push_enabled() -> bool:
     return _env_configured() and _git_available() and is_repo()
 
 
+def has_changes() -> bool:
+    """True if payloads.json / README.md have uncommitted changes to publish."""
+    if not (_git_available() and is_repo()):
+        return False
+    res = _run(["status", "--porcelain", "--"] + COMMIT_FILES)
+    return res.returncode == 0 and bool(res.stdout.strip())
+
+
 def _run(args, network=False):
     base = ["git", "-C", str(mirror_core.BASE_DIR), "-c", "safe.directory=*"]
     env = dict(os.environ)
