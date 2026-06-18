@@ -176,6 +176,21 @@ def _raise_http(exc: MirrorError) -> None:
 # --------------------------------------------------------------------------- #
 # API
 # --------------------------------------------------------------------------- #
+class CollectionTitle(BaseModel):
+    name: str = Field(min_length=1, max_length=120)
+
+
+@app.get("/api/title")
+def read_title() -> CollectionTitle:
+    return CollectionTitle(name=mirror_core.get_title())
+
+
+@app.put("/api/title")
+def update_title(body: CollectionTitle) -> CollectionTitle:
+    with mirror_core.DATA_LOCK:
+        return CollectionTitle(name=mirror_core.set_title(body.name))
+
+
 @app.get("/api/payloads")
 def list_payloads() -> list[Payload]:
     return mirror_core.load_payloads()

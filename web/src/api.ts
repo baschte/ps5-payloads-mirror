@@ -1,5 +1,6 @@
 import { ApiError } from "./types";
 import type {
+  CollectionTitle,
   GitPushResult,
   GitStatus,
   Payload,
@@ -34,6 +35,17 @@ async function request<T>(input: string, init?: RequestInit): Promise<T> {
   if (!res.ok) throw await toApiError(res);
   if (res.status === 204) return undefined as T;
   return (await res.json()) as T;
+}
+
+export function getTitle(): Promise<CollectionTitle> {
+  return request<CollectionTitle>("/api/title");
+}
+
+export function setTitle(name: string): Promise<CollectionTitle> {
+  return request<CollectionTitle>("/api/title", {
+    method: "PUT",
+    body: JSON.stringify({ name }),
+  });
 }
 
 export function listPayloads(): Promise<Payload[]> {

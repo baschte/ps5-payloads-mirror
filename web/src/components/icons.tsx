@@ -79,6 +79,31 @@ export function IconPlay({ className }: IconProps) {
   );
 }
 
+export function IconPencil({ className }: IconProps) {
+  return (
+    <Svg className={className}>
+      <path d="M12 20h9" />
+      <path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5Z" />
+    </Svg>
+  );
+}
+
+export function IconCheck({ className }: IconProps) {
+  return (
+    <Svg className={className}>
+      <path d="M20 6 9 17l-5-5" />
+    </Svg>
+  );
+}
+
+export function IconX({ className }: IconProps) {
+  return (
+    <Svg className={className}>
+      <path d="M18 6 6 18M6 6l12 12" />
+    </Svg>
+  );
+}
+
 export function IconUpload({ className }: IconProps) {
   return (
     <Svg className={className}>

@@ -1,16 +1,26 @@
 import { useCallback, useEffect, useState } from 'react';
-import { getGitStatus, gitPush, listPayloads, updateAll } from './api';
+import {
+    getGitStatus,
+    getTitle,
+    gitPush,
+    listPayloads,
+    setTitle,
+    updateAll,
+} from './api';
 import { AddMirrorForm } from './components/AddMirrorForm';
 import { PayloadTable } from './components/PayloadTable';
 import { SchedulerPanel } from './components/SchedulerPanel';
 import { Toast } from './components/Toast';
 import type { ToastMessage } from './components/Toast';
 import {
+    IconCheck,
     IconExternal,
     IconMoon,
+    IconPencil,
     IconSun,
     IconSync,
     IconUpload,
+    IconX,
     Logo,
 } from './components/icons';
 import { useTheme } from './useTheme';
@@ -24,6 +34,10 @@ export function App() {
     const [toast, setToast] = useState<ToastMessage | null>(null);
     const [gitEnabled, setGitEnabled] = useState(false);
     const [publishing, setPublishing] = useState(false);
+    const [title, setTitleState] = useState('');
+    const [editingTitle, setEditingTitle] = useState(false);
+    const [titleDraft, setTitleDraft] = useState('');
+    const [savingTitle, setSavingTitle] = useState(false);
     const { theme, toggle: toggleTheme } = useTheme();
 
     const notify = useCallback((kind: ToastMessage['kind'], text: string) => {
@@ -55,6 +69,35 @@ export function App() {
             .then((s) => setGitEnabled(s.enabled))
             .catch(() => setGitEnabled(false));
     }, []);
+
+    // Effect: load the collection title on mount.
+    useEffect(() => {
+        getTitle()
+            .then((t) => setTitleState(t.name))
+            .catch(() => setTitleState(''));
+    }, []);
+
+    async function saveTitle() {
+        const next = titleDraft.trim();
+        if (!next) {
+            setEditingTitle(false);
+            return;
+        }
+        setSavingTitle(true);
+        try {
+            const saved = await setTitle(next);
+            setTitleState(saved.name);
+            setEditingTitle(false);
+            notify('success', 'Title updated.');
+        } catch (err) {
+            notify(
+                'error',
+                err instanceof Error ? err.message : 'Failed to update title.'
+            );
+        } finally {
+            setSavingTitle(false);
+        }
+    }
 
     const anyBusy = updatingAll || busyName !== null || publishing;
 
@@ -118,9 +161,56 @@ export function App() {
                 <div className="flex items-center gap-3.5">
                     <Logo />
                     <div>
-                        <h1 className="font-display text-3xl font-bold leading-none tracking-tight text-ink">
-                            Payloads Mirror
-                        </h1>
+                        {editingTitle ? (
+                            <div className="flex items-center gap-2">
+                                <input
+                                    aria-label="Collection title"
+                                    className="input h-10 max-w-xs font-display text-2xl font-bold"
+                                    value={titleDraft}
+                                    autoFocus
+                                    maxLength={120}
+                                    disabled={savingTitle}
+                                    onChange={(e) => setTitleDraft(e.target.value)}
+                                    onKeyDown={(e) => {
+                                        if (e.key === 'Enter') void saveTitle();
+                                        if (e.key === 'Escape') setEditingTitle(false);
+                                    }}
+                                />
+                                <button
+                                    type="button"
+                                    className="btn btn-ghost h-10 w-10 !px-0"
+                                    onClick={() => void saveTitle()}
+                                    disabled={savingTitle}
+                                    aria-label="Save title">
+                                    <IconCheck className="h-4 w-4 text-brand-600 dark:text-brand-300" />
+                                </button>
+                                <button
+                                    type="button"
+                                    className="btn btn-ghost h-10 w-10 !px-0"
+                                    onClick={() => setEditingTitle(false)}
+                                    disabled={savingTitle}
+                                    aria-label="Cancel">
+                                    <IconX className="h-4 w-4" />
+                                </button>
+                            </div>
+                        ) : (
+                            <div className="group flex items-center gap-2">
+                                <h1 className="font-display text-3xl font-bold leading-none tracking-tight text-ink">
+                                    {title || 'Payloads Mirror'}
+                                </h1>
+                                <button
+                                    type="button"
+                                    className="rounded-lg p-1.5 text-faint opacity-0 transition hover:bg-paper hover:text-ink focus-visible:opacity-100 group-hover:opacity-100"
+                                    onClick={() => {
+                                        setTitleDraft(title);
+                                        setEditingTitle(true);
+                                    }}
+                                    aria-label="Edit collection title"
+                                    title="Edit title">
+                                    <IconPencil className="h-4 w-4" />
+                                </button>
+                            </div>
+                        )}
                         <p className="mt-1.5 text-[0.95rem] text-muted">
                             {loading
                                 ? 'Loading…'

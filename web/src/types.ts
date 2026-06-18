@@ -31,6 +31,10 @@ export interface SchedulerStatus {
   last_summary: string | null;
 }
 
+export interface CollectionTitle {
+  name: string;
+}
+
 export interface GitStatus {
   enabled: boolean;
 }

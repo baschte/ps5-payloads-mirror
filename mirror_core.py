@@ -38,6 +38,8 @@ BASE_URL = "https://github.com/baschte/ps5-payloads-mirror/releases/download/pay
 MIRROR_OWNER = "baschte"
 MIRROR_REPO = "ps5-payloads-mirror"
 
+DEFAULT_TITLE = "PS5 Payloads Mirror"
+
 FIELD_ORDER = [
     "name", "filename", "url", "source", "source_direct",
     "asset_pattern", "extract_file", "description",
@@ -189,18 +191,41 @@ def reorder_item(item):
 
 # --------------------------------------------------------------------------- #
 # JSON persistence
+#
+# payloads.json shape: {"name": "<collection title>", "payloads": [ ... ]}.
+# Older files were a bare list; load_data() transparently migrates them, and the
+# next save writes the wrapped form.
 # --------------------------------------------------------------------------- #
-def load_payloads():
-    """Load payloads.json, returning a list (empty if the file is missing)."""
+def load_data():
+    """Return the full document as ``{"name": str, "payloads": list}``."""
     try:
         with open(JSON_FILE, "r") as f:
-            return json.load(f)
+            raw = json.load(f)
     except FileNotFoundError:
-        return []
+        return {"name": DEFAULT_TITLE, "payloads": []}
+
+    if isinstance(raw, list):  # legacy bare-list form
+        return {"name": DEFAULT_TITLE, "payloads": raw}
+    if isinstance(raw, dict):
+        return {
+            "name": (raw.get("name") or DEFAULT_TITLE),
+            "payloads": (raw.get("payloads") or []),
+        }
+    return {"name": DEFAULT_TITLE, "payloads": []}
 
 
-def save_payloads(payloads):
-    """Sort, reorder and persist payloads, then regenerate the README.
+def load_payloads():
+    """Load the payload list (empty if the file is missing)."""
+    return load_data()["payloads"]
+
+
+def get_title():
+    """The collection title shown in the UI / README / feed."""
+    return load_data()["name"]
+
+
+def _write_data(name, payloads):
+    """Sort, reorder and persist the document, then regenerate the README.
 
     Prefers an atomic write (temp file + ``os.replace``) so a concurrent reader
     never sees a half-written file. When the target is a Docker bind-mounted
@@ -209,7 +234,7 @@ def save_payloads(payloads):
     """
     payloads.sort(key=lambda x: x.get("last_update", ""), reverse=True)
     payloads = [reorder_item(p) for p in payloads]
-    data = json.dumps(payloads, indent=2)
+    data = json.dumps({"name": name, "payloads": payloads}, indent=2)
 
     fd, tmp_path = tempfile.mkstemp(dir=str(BASE_DIR), suffix=".json.tmp")
     try:
@@ -228,12 +253,26 @@ def save_payloads(payloads):
     return payloads
 
 
+def save_payloads(payloads):
+    """Persist the payload list, preserving the current collection title."""
+    return _write_data(get_title(), payloads)
+
+
+def set_title(name):
+    """Set the collection title; returns the stored (trimmed) value."""
+    name = (name or "").strip() or DEFAULT_TITLE
+    _write_data(name, load_data()["payloads"])
+    return name
+
+
 # --------------------------------------------------------------------------- #
 # README generation
 # --------------------------------------------------------------------------- #
 def update_readme():
     """Regenerate the payload table inside README.md from payloads.json."""
-    payloads = load_payloads()
+    data = load_data()
+    title = data["name"]
+    payloads = data["payloads"]
 
     table_rows = [
         "| Payload | Version | Description | Last Updated | Source | Download |",
@@ -252,7 +291,7 @@ def update_readme():
         )
     table_content = "\n".join(table_rows)
 
-    template = f"""# PS5 Payloads Mirror
+    template = f"""# {title}
 
 This repository contains an automated mirror of useful payloads for the PlayStation 5.
 
