@@ -91,6 +91,17 @@
       "checksum": "bfb07865611df05d4a07236f375e7e0b64e2f387124052fa67510f8b4fcae1a7"
     },
     {
+      "name": "nanoDNS",
+      "filename": "nanoDNS_0.3.elf",
+      "url": "https://github.com/baschte/ps5-payloads-mirror/releases/download/payloads-mirror/nanoDNS_0.3.elf",
+      "source": "https://github.com/drakmor/nanoDNS/releases",
+      "source_direct": "https://github.com/drakmor/nanoDNS/releases/download/0.3/nanodns.elf",
+      "description": "Minimal PS4/PS5 payload DNS proxy",
+      "last_update": "2026-06-03",
+      "version": "0.3",
+      "checksum": "ce1c8b31036ab948da65b362a4b6f249ffca8a555fc5bc4b051ec65d041bc944"
+    },
+    {
       "name": "klogsrv",
       "filename": "klogsrv_v0.8.elf",
       "url": "https://github.com/baschte/ps5-payloads-mirror/releases/download/payloads-mirror/klogsrv_v0.8.elf",
