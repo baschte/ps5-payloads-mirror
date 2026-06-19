@@ -65,6 +65,25 @@ Requirements & behaviour:
 - The endpoint sits behind the Basic Auth above. Use HTTPS in production.
 - When the four vars aren't set (or it isn't a git repo), the button is hidden.
 
+### Auto-publish
+
+When publishing is configured, every change to `payloads.json` — whether made
+manually in the UI or found by the scheduler — automatically triggers a commit &
+push **after a short debounce window** (default 60s). Several changes inside the
+window coalesce into a single publish. The manual **Publish** button still works
+as an immediate override.
+
+Tune it with env vars (both optional):
+
+```
+AUTO_PUBLISH_DELAY_SECONDS=60   # debounce window in seconds (default 60)
+AUTO_PUBLISH_ENABLED=0          # set to 0/false to disable auto-publish entirely
+```
+
+The publish runs under the same data lock as the manual one, so it never
+overlaps an in-flight edit or scheduled update. `GET /api/git/auto-publish`
+reports its state.
+
 ## API
 
 | Method | Path | Purpose |
@@ -79,6 +98,7 @@ Requirements & behaviour:
 | `POST` | `/api/scheduler/run-now` | Trigger an update immediately |
 | `GET` | `/api/git/status` | Whether the Publish button is enabled |
 | `POST` | `/api/git/push` | Commit payloads.json + README.md, rebase, push |
+| `GET` | `/api/git/auto-publish` | Auto-publish status (enabled, delay, pending, last result) |
 
 ## Run locally (dev)
 

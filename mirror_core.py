@@ -29,6 +29,17 @@ from pathlib import Path
 # Acquire it around any mutating operation at the call site.
 DATA_LOCK = threading.Lock()
 
+# Callbacks invoked after every successful write of payloads.json (any path:
+# manual API edit, scheduled update, title change). The server registers one to
+# trigger auto-publishing; the CLI/GitHub Action register none, so they stay
+# decoupled. Hooks run under DATA_LOCK and must be non-blocking and cheap.
+_POST_WRITE_HOOKS = []
+
+
+def register_post_write_hook(fn):
+    """Register ``fn()`` to be called after each successful payloads.json write."""
+    _POST_WRITE_HOOKS.append(fn)
+
 BASE_DIR = Path(__file__).resolve().parent
 JSON_FILE = BASE_DIR / "payloads.json"
 PAYLOADS_DIR = BASE_DIR / "payloads"
@@ -254,6 +265,12 @@ def _write_data(name, payloads):
         if os.path.exists(tmp_path):
             os.remove(tmp_path)
     update_readme()
+    for hook in _POST_WRITE_HOOKS:
+        try:
+            hook()
+        except Exception:
+            # A misbehaving hook must never break persistence.
+            pass
     return payloads
 
 

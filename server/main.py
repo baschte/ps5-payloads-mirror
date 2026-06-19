@@ -24,16 +24,20 @@ from pydantic import BaseModel, Field
 import mirror_core
 from mirror_core import DuplicateError, MirrorError, NotFoundError, ZipExtractNeeded
 from server import git_ops
+from server.auto_publish import AutoPublisher
 from server.scheduler import MAX_INTERVAL_HOURS, MIN_INTERVAL_HOURS, Scheduler
 
 scheduler = Scheduler()
+auto_publisher = AutoPublisher()
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    auto_publisher.start()
     scheduler.start()
     yield
     await scheduler.stop()
+    await auto_publisher.stop()
 
 
 app = FastAPI(title="PS5 Payloads Mirror", version="1.0.0", lifespan=lifespan)
@@ -291,6 +295,19 @@ def git_push() -> GitPushResult:
             return GitPushResult(**git_ops.commit_and_push())
     except git_ops.GitError as e:
         raise HTTPException(status_code=400, detail=str(e))
+
+
+class AutoPublishStatus(BaseModel):
+    enabled: bool
+    delay_seconds: int
+    is_publishing: bool
+    pending: bool
+    last_result: str | None = None
+
+
+@app.get("/api/git/auto-publish")
+def auto_publish_status() -> AutoPublishStatus:
+    return AutoPublishStatus(**auto_publisher.status())
 
 
 @app.get("/api/health")
