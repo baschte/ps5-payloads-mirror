@@ -2,6 +2,17 @@
   "name": "Baschtes PS5 Payloads",
   "payloads": [
     {
+      "name": "pegasus-dl",
+      "filename": "pegasus-dl_v1.5.0.elf",
+      "url": "https://github.com/baschte/ps5-payloads-mirror/releases/download/payloads-mirror/pegasus-dl_v1.5.0.elf",
+      "source": "https://github.com/pegasus-ps5/pegasus-dl/releases",
+      "source_direct": "https://github.com/pegasus-ps5/pegasus-dl/releases/download/v1.5.0/pegasus_dl.elf",
+      "description": "Direct package downloading from your PS5, managed through a local web interface.",
+      "last_update": "2026-06-19",
+      "version": "v1.5.0",
+      "checksum": "d48b96e93a5d47324bd1adc79ae834009c297fdb5759a136552158ef5e2a1ab6"
+    },
+    {
       "name": "PS5-Game-Compressor",
       "filename": "PS5-Game-Compressor_v1.0.1.elf",
       "url": "https://github.com/baschte/ps5-payloads-mirror/releases/download/payloads-mirror/PS5-Game-Compressor_v1.0.1.elf",
@@ -33,17 +44,6 @@
       "last_update": "2026-06-17",
       "version": "v3.3.22",
       "checksum": "6fac6e1fa572e8780a39b7d32f418eff8900f9d6c921d6aad926270db30f9527"
-    },
-    {
-      "name": "pegasus-dl",
-      "filename": "pegasus-dl_v1.4.0.elf",
-      "url": "https://github.com/baschte/ps5-payloads-mirror/releases/download/payloads-mirror/pegasus-dl_v1.4.0.elf",
-      "source": "https://github.com/pegasus-ps5/pegasus-dl/releases",
-      "source_direct": "https://github.com/pegasus-ps5/pegasus-dl/releases/download/v1.4.0/pegasus_dl.elf",
-      "description": "Direct package downloading from your PS5, managed through a local web interface.",
-      "last_update": "2026-06-15",
-      "version": "v1.4.0",
-      "checksum": "3e2731fba643b7f303a6a6dc2092edf3bca213cc44d73463c9f74d3887c7bc09"
     },
     {
       "name": "garlic-savemgr",
