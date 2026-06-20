@@ -3,14 +3,14 @@
   "payloads": [
     {
       "name": "PS5-Game-Compressor",
-      "filename": "PS5-Game-Compressor_v1.0.2.elf",
-      "url": "https://github.com/baschte/ps5-payloads-mirror/releases/download/payloads-mirror/PS5-Game-Compressor_v1.0.2.elf",
+      "filename": "PS5-Game-Compressor_v1.0.3.elf",
+      "url": "https://github.com/baschte/ps5-payloads-mirror/releases/download/payloads-mirror/PS5-Game-Compressor_v1.0.3.elf",
       "source": "https://github.com/juma-sayeh/PS5-Game-Compressor/releases",
-      "source_direct": "https://github.com/juma-sayeh/PS5-Game-Compressor/releases/download/v1.0.2/game-compressor.elf",
+      "source_direct": "https://github.com/juma-sayeh/PS5-Game-Compressor/releases/download/v1.0.3/game-compressor.elf",
       "description": "Standalone PS5 payload for compressing, unpacking, validating, repairing, and moving ShadowMountPlus-mounted games from a simple web UI.",
       "last_update": "2026-06-20",
-      "version": "v1.0.2",
-      "checksum": "65918eda7454e9221b244ff0fa29738bf3e251b4745efcf589271bb76de3f6b1"
+      "version": "v1.0.3",
+      "checksum": "51b66edf6210c022d57a31ab12bf97f95a3c71ea683df387d9081494f11606b2"
     },
     {
       "name": "pegasus-dl",
