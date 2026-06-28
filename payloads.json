@@ -25,6 +25,17 @@
       "checksum": "0669701436835059cf5ddefbc7a739268fcb621337b59922d1670d36a5599896"
     },
     {
+      "name": "shsrv",
+      "filename": "shsrv_v0.19.elf",
+      "url": "https://github.com/baschte/ps5-payloads-mirror/releases/download/payloads-mirror/shsrv_v0.19.elf",
+      "source": "https://github.com/ps5-payload-dev/shsrv/releases",
+      "source_direct": "https://github.com/ps5-payload-dev/shsrv/releases/download/v0.19/shsrv-ps5.elf",
+      "description": "A simple telnet-like shell server for jailbroken PS5s that accepts connections on port 2323",
+      "last_update": "2026-06-28",
+      "version": "v0.19",
+      "checksum": "797827b50a93dbf327abdca45063d76ea24b17e561d927f397a0b73cadb2e2bd"
+    },
+    {
       "name": "pegasus-dl",
       "filename": "pegasus-dl_v1.7.0.elf",
       "url": "https://github.com/baschte/ps5-payloads-mirror/releases/download/payloads-mirror/pegasus-dl_v1.7.0.elf",
@@ -111,17 +122,6 @@
       "last_update": "2026-05-12",
       "version": "v0.8",
       "checksum": "f6eb1b415ecf3340b89a56a0cb04ba5c714430085851ada13a98012b63a5a4cf"
-    },
-    {
-      "name": "shsrv",
-      "filename": "shsrv_v0.18.2.elf",
-      "url": "https://github.com/baschte/ps5-payloads-mirror/releases/download/payloads-mirror/shsrv_v0.18.2.elf",
-      "source": "https://github.com/ps5-payload-dev/shsrv/releases",
-      "source_direct": "https://github.com/ps5-payload-dev/shsrv/releases/download/v0.18.2/shsrv-ps5.elf",
-      "description": "A simple telnet-like shell server for jailbroken PS5s that accepts connections on port 2323",
-      "last_update": "2026-05-12",
-      "version": "v0.18.2",
-      "checksum": "990f7fbcf3761f97db9b97638d3e119352447fb904b2cf70b191c02289e1c69e"
     },
     {
       "name": "ps5-app-dumper",
