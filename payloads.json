@@ -113,6 +113,17 @@
       "checksum": "ce1c8b31036ab948da65b362a4b6f249ffca8a555fc5bc4b051ec65d041bc944"
     },
     {
+      "name": "P2JB-Y2JB-Porting",
+      "filename": "P2JB-Y2JB-Porting_2.6.elf",
+      "url": "https://github.com/baschte/ps5-payloads-mirror/releases/download/payloads-mirror/P2JB-Y2JB-Porting_2.6.elf",
+      "source": "https://github.com/matem6/P2JB-Y2JB-Porting/releases",
+      "source_direct": "https://github.com/matem6/P2JB-Y2JB-Porting/releases/download/2.6/elfldr_1320_v5.elf",
+      "description": "Elfloader for PS5 FW up to 13.20",
+      "last_update": "2026-05-25",
+      "version": "2.6",
+      "checksum": "5839049ca949462c9e8cb40be35afd783ac07d50a290857a5558ceeb81fb90fe"
+    },
+    {
       "name": "klogsrv",
       "filename": "klogsrv_v0.8.elf",
       "url": "https://github.com/baschte/ps5-payloads-mirror/releases/download/payloads-mirror/klogsrv_v0.8.elf",
