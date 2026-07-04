@@ -2,6 +2,17 @@
   "name": "Baschtes PS5 Payloads",
   "payloads": [
     {
+      "name": "kstuff-lite",
+      "filename": "kstuff-lite_v1.09.elf",
+      "url": "https://github.com/baschte/ps5-payloads-mirror/releases/download/payloads-mirror/kstuff-lite_v1.09.elf",
+      "source": "https://github.com/EchoStretch/kstuff-lite/releases",
+      "source_direct": "https://github.com/EchoStretch/kstuff-lite/releases/download/v1.09/kstuff.elf",
+      "description": "kstuff-lite is a lightweight PlayStation 5 (PS5) kernel payload used in homebrew/jailbreaking to handle fpkg (fake package) game mounting, FSELF decryption, and license management across various firmware versions.",
+      "last_update": "2026-07-04",
+      "version": "v1.09",
+      "checksum": "ec5212794dc6e44ee8e70fd0549abec6d3dac8c3e03ddbeafd9f869ffe97d4e8"
+    },
+    {
       "name": "ShadowMountPlus",
       "filename": "ShadowMountPlus_1.6beta16.elf",
       "url": "https://github.com/baschte/ps5-payloads-mirror/releases/download/payloads-mirror/ShadowMountPlus_1.6beta16.elf",
@@ -34,17 +45,6 @@
       "last_update": "2026-06-28",
       "version": "v0.19",
       "checksum": "797827b50a93dbf327abdca45063d76ea24b17e561d927f397a0b73cadb2e2bd"
-    },
-    {
-      "name": "kstuff-lite",
-      "filename": "kstuff-lite_v1.08.elf",
-      "url": "https://github.com/baschte/ps5-payloads-mirror/releases/download/payloads-mirror/kstuff-lite_v1.08.elf",
-      "source": "https://github.com/EchoStretch/kstuff-lite/releases",
-      "source_direct": "https://github.com/EchoStretch/kstuff-lite/releases/download/v1.08/kstuff.elf",
-      "description": "kstuff-lite is a lightweight PlayStation 5 (PS5) kernel payload used in homebrew/jailbreaking to handle fpkg (fake package) game mounting, FSELF decryption, and license management across various firmware versions.",
-      "last_update": "2026-06-28",
-      "version": "v1.08",
-      "checksum": "17294fb95736b9871457c255c0fa2ce2fc2c0401f5cc5b26abd077393b018361"
     },
     {
       "name": "pegasus-dl",
