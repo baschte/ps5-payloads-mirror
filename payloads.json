@@ -133,6 +133,17 @@
       "last_update": "2026-05-03",
       "version": "v1.10",
       "checksum": "95382a9e37987d8eb931cbe5db618e77d293099ef4314e3288d9899bd5ac5c00"
+    },
+    {
+      "name": "BD-UN-JB",
+      "filename": "BD-UN-JB_1.1.elf",
+      "url": "https://github.com/baschte/ps5-payloads-mirror/releases/download/payloads-mirror/BD-UN-JB_1.1.elf",
+      "source": "https://github.com/Gezine/BD-UN-JB/releases",
+      "source_direct": "https://github.com/Gezine/BD-UN-JB/releases/download/1.1/bdj_unpatch_1340.elf",
+      "description": "BD-UN-JB is RemoteJarLoader that can be used on already jailbroken PS5 upto 13.40 firmware.",
+      "last_update": "2026-05-03",
+      "version": "1.1",
+      "checksum": "fe0a32ab92a575e6a3d0da989d4db37a096cb65e46fe4e37abe54495699227de"
     }
   ]
 }

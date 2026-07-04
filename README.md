@@ -19,6 +19,7 @@ This repository contains an automated mirror of useful payloads for the PlayStat
 | **nanoDNS** | `0.3` | Minimal PS4/PS5 payload DNS proxy | `2026-06-03` | [Source](https://github.com/drakmor/nanoDNS/releases) | [Download](https://github.com/baschte/ps5-payloads-mirror/releases/download/payloads-mirror/nanoDNS_0.3.elf) |
 | **klogsrv** | `v0.8` | A simple socket server that redirects /dev/klog to sockets connected on port 3232 | `2026-05-12` | [Source](https://github.com/ps5-payload-dev/klogsrv/releases) | [Download](https://github.com/baschte/ps5-payloads-mirror/releases/download/payloads-mirror/klogsrv_v0.8.elf) |
 | **ps5-app-dumper** | `v1.10` | A small utility to dump PS5 application files from the console's pfsmnt to a connected USB storage device. | `2026-05-03` | [Source](https://github.com/EchoStretch/ps5-app-dumper/releases) | [Download](https://github.com/baschte/ps5-payloads-mirror/releases/download/payloads-mirror/ps5-app-dumper_v1.10.elf) |
+| **BD-UN-JB** | `1.1` | BD-UN-JB is RemoteJarLoader that can be used on already jailbroken PS5 upto 13.40 firmware. | `2026-05-03` | [Source](https://github.com/Gezine/BD-UN-JB/releases) | [Download](https://github.com/baschte/ps5-payloads-mirror/releases/download/payloads-mirror/BD-UN-JB_1.1.elf) |
 <!-- PAYLOADS_END -->
 
 ## Support & Suggestions
