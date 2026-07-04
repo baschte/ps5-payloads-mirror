@@ -80,6 +80,17 @@
       "checksum": "51b66edf6210c022d57a31ab12bf97f95a3c71ea683df387d9081494f11606b2"
     },
     {
+      "name": "kylin-core-release",
+      "filename": "kylin-core-release_v1.3.1-community-lite.elf",
+      "url": "https://github.com/baschte/ps5-payloads-mirror/releases/download/payloads-mirror/kylin-core-release_v1.3.1-community-lite.elf",
+      "source": "https://github.com/aydencharles/kylin-core-release/releases",
+      "source_direct": "https://github.com/aydencharles/kylin-core-release/releases/download/v1.3.1-community-lite/kylin-core.elf",
+      "description": "A homebrew cheat loader and real-time game modifier for PS5, built for the PlayStation 5 homebrew ecosystem.",
+      "last_update": "2026-06-19",
+      "version": "v1.3.1-community-lite",
+      "checksum": "90320a4169d61be6e168e605e59c4d8fc89fb978f1772f03c2011e7e8087b8a3"
+    },
+    {
       "name": "CheatRunner",
       "filename": "CheatRunner_v0.14.elf",
       "url": "https://github.com/baschte/ps5-payloads-mirror/releases/download/payloads-mirror/CheatRunner_v0.14.elf",
