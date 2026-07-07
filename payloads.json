@@ -2,6 +2,17 @@
   "name": "Baschtes PS5 Payloads",
   "payloads": [
     {
+      "name": "CheatRunner",
+      "filename": "CheatRunner_v0.15.elf",
+      "url": "https://github.com/baschte/ps5-payloads-mirror/releases/download/payloads-mirror/CheatRunner_v0.15.elf",
+      "source": "https://github.com/notmaj0r/CheatRunner/releases",
+      "source_direct": "https://github.com/notmaj0r/CheatRunner/releases/download/v0.15/CheatRunner.elf",
+      "description": "CheatRunner is a PS5 web launcher and cheat trainer for already-jailbroken PS5 consoles.",
+      "last_update": "2026-07-07",
+      "version": "v0.15",
+      "checksum": "b48a2424d90a4d34bca7824ce33fae6a79c07281a87a38d080776a1e6987cc68"
+    },
+    {
       "name": "ps5upload",
       "filename": "ps5upload_v3.3.26.elf",
       "url": "https://github.com/baschte/ps5-payloads-mirror/releases/download/payloads-mirror/ps5upload_v3.3.26.elf",
@@ -89,17 +100,6 @@
       "last_update": "2026-06-19",
       "version": "v1.3.1-community-lite",
       "checksum": "90320a4169d61be6e168e605e59c4d8fc89fb978f1772f03c2011e7e8087b8a3"
-    },
-    {
-      "name": "CheatRunner",
-      "filename": "CheatRunner_v0.14.elf",
-      "url": "https://github.com/baschte/ps5-payloads-mirror/releases/download/payloads-mirror/CheatRunner_v0.14.elf",
-      "source": "https://github.com/notmaj0r/CheatRunner/releases",
-      "source_direct": "https://github.com/notmaj0r/CheatRunner/releases/download/v0.14/CheatRunner.elf",
-      "description": "CheatRunner is a PS5 web launcher and cheat trainer for already-jailbroken PS5 consoles.",
-      "last_update": "2026-06-18",
-      "version": "v0.14",
-      "checksum": "5ffe8ed97fd6021cfad2b44a1be68c1b9f6e84c1e3a8d925f9e3b975235aa99f"
     },
     {
       "name": "garlic-savemgr",
