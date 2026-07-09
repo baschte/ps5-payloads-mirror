@@ -2,6 +2,17 @@
   "name": "Baschtes PS5 Payloads",
   "payloads": [
     {
+      "name": "ps5upload",
+      "filename": "ps5upload_v3.4.0.elf",
+      "url": "https://github.com/baschte/ps5-payloads-mirror/releases/download/payloads-mirror/ps5upload_v3.4.0.elf",
+      "source": "https://github.com/phantomptr/ps5upload/releases",
+      "source_direct": "https://github.com/phantomptr/ps5upload/releases/download/v3.4.0/ps5upload-3.4.0.elf",
+      "description": "Fast, reliable transfers from your computer to your PS5.",
+      "last_update": "2026-07-09",
+      "version": "v3.4.0",
+      "checksum": "a3e48a38e0591a303b539a3dc0fe512b292135ff6ba3c2e7315e28c3ce3f8234"
+    },
+    {
       "name": "CheatRunner",
       "filename": "CheatRunner_v0.15.elf",
       "url": "https://github.com/baschte/ps5-payloads-mirror/releases/download/payloads-mirror/CheatRunner_v0.15.elf",
@@ -11,17 +22,6 @@
       "last_update": "2026-07-07",
       "version": "v0.15",
       "checksum": "b48a2424d90a4d34bca7824ce33fae6a79c07281a87a38d080776a1e6987cc68"
-    },
-    {
-      "name": "ps5upload",
-      "filename": "ps5upload_v3.3.26.elf",
-      "url": "https://github.com/baschte/ps5-payloads-mirror/releases/download/payloads-mirror/ps5upload_v3.3.26.elf",
-      "source": "https://github.com/phantomptr/ps5upload/releases",
-      "source_direct": "https://github.com/phantomptr/ps5upload/releases/download/v3.3.26/ps5upload-3.3.26.elf",
-      "description": "Fast, reliable transfers from your computer to your PS5.",
-      "last_update": "2026-07-06",
-      "version": "v3.3.26",
-      "checksum": "beb9e376f74a392d51496045231d51ad9744f812bce09b3906661eb3e7555013"
     },
     {
       "name": "kstuff-lite",
