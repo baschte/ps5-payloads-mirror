@@ -35,17 +35,6 @@
       "checksum": "ec5212794dc6e44ee8e70fd0549abec6d3dac8c3e03ddbeafd9f869ffe97d4e8"
     },
     {
-      "name": "ps5-bar-tool",
-      "filename": "ps5-bar-tool_Release.elf",
-      "url": "https://github.com/baschte/ps5-payloads-mirror/releases/download/payloads-mirror/ps5-bar-tool_Release.elf",
-      "source": "https://github.com/chibsaabji/ps5-bar-tool/releases",
-      "source_direct": "https://github.com/chibsaabji/ps5-bar-tool/releases/download/Release/ps5-bar-tool_info.elf",
-      "description": "PS5 implements a feature called \"Backup and Restore\" (BAR) to allow users to move or save user data and application information.",
-      "last_update": "2026-06-29",
-      "version": "Release",
-      "checksum": "cd380928b1ca7d896206d74718918a88bf802312ef8d46cf1724f62eb9545d22"
-    },
-    {
       "name": "ShadowMountPlus",
       "filename": "ShadowMountPlus_1.6beta16.elf",
       "url": "https://github.com/baschte/ps5-payloads-mirror/releases/download/payloads-mirror/ShadowMountPlus_1.6beta16.elf",
