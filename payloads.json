@@ -3,14 +3,14 @@
   "payloads": [
     {
       "name": "ps5upload",
-      "filename": "ps5upload_v3.4.0.elf",
-      "url": "https://github.com/baschte/ps5-payloads-mirror/releases/download/payloads-mirror/ps5upload_v3.4.0.elf",
+      "filename": "ps5upload_v4.0.0.elf",
+      "url": "https://github.com/baschte/ps5-payloads-mirror/releases/download/payloads-mirror/ps5upload_v4.0.0.elf",
       "source": "https://github.com/phantomptr/ps5upload/releases",
-      "source_direct": "https://github.com/phantomptr/ps5upload/releases/download/v3.4.0/ps5upload-3.4.0.elf",
+      "source_direct": "https://github.com/phantomptr/ps5upload/releases/download/v4.0.0/ps5upload-4.0.0.elf",
       "description": "Fast, reliable transfers from your computer to your PS5.",
-      "last_update": "2026-07-09",
-      "version": "v3.4.0",
-      "checksum": "a3e48a38e0591a303b539a3dc0fe512b292135ff6ba3c2e7315e28c3ce3f8234"
+      "last_update": "2026-07-11",
+      "version": "v4.0.0",
+      "checksum": "ba8de000b8a20a624352f445b8e2d4ead541c191eb3c3efece4ff5ea01745ed4"
     },
     {
       "name": "CheatRunner",
