@@ -161,19 +161,19 @@
       "hidden": false
     },
     {
-      "name": "ShadowMountPlus",
-      "filename": "ShadowMountPlus_1.6beta16.elf",
-      "url": "https://github.com/baschte/ps5-payloads-mirror/releases/download/payloads-mirror/ShadowMountPlus_1.6beta16.elf",
+      "name": "shadowmountplus",
+      "filename": "shadowmountplus_1.6beta16.elf",
+      "url": "https://github.com/baschte/ps5-payloads-mirror/releases/download/payloads-mirror/shadowmountplus_1.6beta16.elf",
       "source": "https://github.com/drakmor/ShadowMountPlus/releases",
-      "source_direct": "https://github.com/drakmor/ShadowMountPlus/releases/download/1.6beta16/ShadowMountPlus_1.6beta16.zip",
-      "asset_pattern": "ShadowMountPlus_1.6beta16.zip",
-      "extract_file": "shadowmountplus.elf",
+      "source_direct": "https://github.com/drakmor/ShadowMountPlus/releases/download/1.6beta16/shadowmountplus.elf",
+      "asset_pattern": "shadowmountplus.elf",
       "description": "A fully automated, background 'Auto-Mounter' payload for Jailbroken PlayStation 5 consoles.",
       "last_update": "2026-06-28",
       "version": "1.6beta16",
       "checksum": "a35246fb3bb6042b25653b51cdcbc33254b40339342bf1d2dd0d2eceee2ca526",
       "sort_order": 120,
-      "hidden": false
+      "hidden": false,
+      "title": "ShadowMountPlus"
     },
     {
       "name": "ps5debug-NG",
