@@ -39,11 +39,21 @@ optionally paired with a caller-supplied `title`.
 - **THEN** the system SHALL resolve the latest release, download the
   selected asset, persist a new mirror record, and return it
 
-#### Scenario: Duplicate source is rejected
-- **WHEN** a client submits a source URL that resolves to a source already
-  mirrored by an existing item
+#### Scenario: Duplicate source and candidate is rejected
+- **WHEN** a client submits a source URL that resolves to the same source
+  AND the same selected candidate (asset name, and extracted member name
+  when applicable) as an existing mirror
 - **THEN** the system SHALL reject the request without creating a new
-  mirror or modifying the existing one
+  mirror or modifying the existing one, with an error identifying the
+  source and the conflicting asset/file
+
+#### Scenario: Same source with a different candidate is allowed
+- **WHEN** a client submits a source URL that already has an existing
+  mirror, but resolves (via an explicit `asset_name`/`extract_file` choice
+  or auto-selection) to a different candidate than any existing mirror from
+  that source
+- **THEN** the system SHALL create a new, separate mirror for that source
+  and candidate, without rejecting the request as a duplicate
 
 #### Scenario: Ambiguous release requires a candidate choice
 - **WHEN** a client submits a source URL whose latest release has more than
@@ -66,7 +76,9 @@ optionally paired with a caller-supplied `title`.
 ### Requirement: Edit a mirror renames it when its title changes
 The system SHALL allow updating a mirror's `title` via the edit endpoint,
 and SHALL keep `name`/`filename` derived from `title` when one is set,
-renaming the mirror's stored record and on-disk file as needed.
+renaming the mirror's stored record and on-disk file as needed. When a
+mirror's source URL is changed via edit, the same source-and-candidate
+duplicate check used by add applies against every *other* mirror.
 
 #### Scenario: Edit request changes the title
 - **WHEN** a client edits an existing mirror with a `title` whose derived
@@ -80,6 +92,20 @@ renaming the mirror's stored record and on-disk file as needed.
   slug matches a *different* mirror's current `name`
 - **THEN** the system SHALL reject the request without modifying either
   mirror's stored record or on-disk file
+
+#### Scenario: Edit changes source to one already mirrored with the same candidate
+- **WHEN** a client edits an existing mirror's source URL to a value that
+  resolves to the same source AND same selected candidate as a *different*
+  existing mirror
+- **THEN** the system SHALL reject the request without modifying either
+  mirror's stored record or on-disk file
+
+#### Scenario: Edit changes source to one already mirrored with a different candidate
+- **WHEN** a client edits an existing mirror's source URL to a value that
+  resolves to a source already used by a different mirror, but to a
+  different candidate than that other mirror
+- **THEN** the system SHALL apply the edit, allowing the two mirrors to
+  share the same source with different candidates
 
 ### Requirement: Update a single mirror
 The system SHALL allow re-checking a single mirror against its source and

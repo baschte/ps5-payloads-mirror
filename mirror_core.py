@@ -710,6 +710,24 @@ def _slugify(title):
     return slug.strip("-")
 
 
+def _find_duplicate_candidate(payloads, source_url, asset_name, member_name):
+    """Find an existing payload mirroring the same source AND the same
+    resolved candidate (asset name + extracted member, if any). Different
+    assets/files from the same source are not duplicates of each other."""
+    return next(
+        (p for p in payloads
+         if p.get("source") == source_url
+         and p.get("asset_pattern") == asset_name
+         and p.get("extract_file") == member_name),
+        None,
+    )
+
+
+def _duplicate_candidate_message(source_url, asset_name, member_name):
+    suffix = f" ({member_name})" if member_name else ""
+    return f"A payload from {source_url} using {asset_name}{suffix} already exists."
+
+
 def _resolve_release_and_asset(url, asset_name=None, extract_file=None):
     """Shared resolution used by both add_payload and edit_payload.
 
@@ -764,8 +782,10 @@ def add_payload(url, description="", extract_file=None, asset_name=None, title=N
 
     payloads = load_payloads()
     source_url = f"https://{domain}/{owner}/{repo}/releases"
-    if any(p.get("source") == source_url for p in payloads):
-        raise DuplicateError(f"A payload from {source_url} already exists.")
+    if _find_duplicate_candidate(payloads, source_url, selected_asset["name"], member_name):
+        raise DuplicateError(
+            _duplicate_candidate_message(source_url, selected_asset["name"], member_name)
+        )
 
     item_name = repo
     if title and title.strip():
@@ -957,8 +977,10 @@ def edit_payload(name, url=None, description=None, extract_file=None, asset_name
         url, asset_name=asset_name, extract_file=extract_file
     )
     source_url = f"https://{domain}/{owner}/{repo}/releases"
-    if any(p.get("source") == source_url for p in others):
-        raise DuplicateError(f"A payload from {source_url} already exists.")
+    if _find_duplicate_candidate(others, source_url, selected_asset["name"], member_name):
+        raise DuplicateError(
+            _duplicate_candidate_message(source_url, selected_asset["name"], member_name)
+        )
 
     new_description = description if description is not None else item.get("description", "")
     new_title = title if title is not None else item.get("title")
