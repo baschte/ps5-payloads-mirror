@@ -22,7 +22,7 @@ from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 
 import mirror_core
-from mirror_core import DuplicateError, MirrorError, NotFoundError, ZipExtractNeeded
+from mirror_core import AmbiguousAssetError, DuplicateError, MirrorError, NotFoundError
 from server import git_ops
 from server.auto_publish import AutoPublisher
 from server.scheduler import MAX_INTERVAL_HOURS, MIN_INTERVAL_HOURS, Scheduler
@@ -112,6 +112,7 @@ class Payload(BaseModel):
     model_config = {"extra": "allow"}
 
     name: str
+    title: str | None = None
     filename: str | None = None
     url: str | None = None
     source: str | None = None
@@ -122,15 +123,52 @@ class Payload(BaseModel):
     last_update: str | None = None
     version: str | None = None
     checksum: str | None = None
+    sort_order: int | None = None
+    hidden: bool = False
 
 
 class AddPayloadRequest(BaseModel):
     url: str = Field(description="Release URL of the upstream repo (GitHub or Gitea).")
     description: str = ""
+    title: str | None = Field(default=None, description="Display title, if different from the derived name.")
+    asset_name: str | None = Field(
+        default=None,
+        description="Top-level release asset filename to use, when the release has multiple candidates.",
+    )
     extract_file: str | None = Field(
         default=None,
-        description="Internal .elf path to extract when the asset is a ZIP with multiple .elf files.",
+        description="Internal .elf/.bin path to extract when the chosen asset is a ZIP with multiple members.",
     )
+
+
+class EditPayloadRequest(BaseModel):
+    url: str | None = Field(default=None, description="New source release URL, if changing the source.")
+    description: str | None = Field(default=None, description="New description, if changing it.")
+    title: str | None = Field(default=None, description="New display title, if changing it.")
+    asset_name: str | None = Field(
+        default=None,
+        description="Top-level release asset filename to use, when the release has multiple candidates.",
+    )
+    extract_file: str | None = Field(
+        default=None,
+        description="Internal .elf/.bin path to extract when the chosen asset is a ZIP with multiple members.",
+    )
+
+
+class CandidateModel(BaseModel):
+    asset_name: str
+    member_name: str | None = None
+    label: str
+
+
+class ReorderRequest(BaseModel):
+    names: list[str] = Field(
+        description="Every known mirror name (visible and hidden), exactly once, in the desired order."
+    )
+
+
+class SetHiddenRequest(BaseModel):
+    hidden: bool
 
 
 class UpdateResult(BaseModel):
@@ -169,7 +207,7 @@ def _raise_http(exc: MirrorError) -> None:
         raise HTTPException(status_code=409, detail=str(exc))
     if isinstance(exc, NotFoundError):
         raise HTTPException(status_code=404, detail=str(exc))
-    if isinstance(exc, ZipExtractNeeded):
+    if isinstance(exc, AmbiguousAssetError):
         raise HTTPException(
             status_code=422,
             detail={"message": str(exc), "candidates": exc.candidates},
@@ -221,7 +259,60 @@ def raw_payloads_json() -> FileResponse:
 def add_payload(req: AddPayloadRequest) -> Payload:
     try:
         with mirror_core.DATA_LOCK:
-            return mirror_core.add_payload(req.url, req.description, req.extract_file)
+            return mirror_core.add_payload(
+                req.url, req.description, req.extract_file,
+                asset_name=req.asset_name, title=req.title,
+            )
+    except MirrorError as e:
+        _raise_http(e)
+
+
+@app.get("/api/payloads/{name}/candidates")
+def list_payload_candidates(name: Annotated[str, PathParam()]) -> list[CandidateModel]:
+    """Read-only: the current release's candidate files for an existing
+    mirror's (unchanged) source, so the edit UI can offer an asset/file
+    switch without requiring a source URL change."""
+    try:
+        return mirror_core.list_candidates_for_payload(name)
+    except MirrorError as e:
+        _raise_http(e)
+
+
+@app.put("/api/payloads/reorder")
+def reorder_payloads(req: ReorderRequest) -> list[Payload]:
+    """Persist a full manual reordering across both visible and hidden mirrors.
+
+    Registered before the /{name} routes below so "reorder" is never matched
+    as a path parameter.
+    """
+    try:
+        with mirror_core.DATA_LOCK:
+            return mirror_core.reorder_payloads(req.names)
+    except MirrorError as e:
+        _raise_http(e)
+
+
+@app.put("/api/payloads/{name}")
+def edit_payload(name: Annotated[str, PathParam()], req: EditPayloadRequest) -> Payload:
+    try:
+        with mirror_core.DATA_LOCK:
+            return mirror_core.edit_payload(
+                name,
+                url=req.url,
+                description=req.description,
+                title=req.title,
+                extract_file=req.extract_file,
+                asset_name=req.asset_name,
+            )
+    except MirrorError as e:
+        _raise_http(e)
+
+
+@app.put("/api/payloads/{name}/hidden")
+def set_payload_hidden(name: Annotated[str, PathParam()], req: SetHiddenRequest) -> Payload:
+    try:
+        with mirror_core.DATA_LOCK:
+            return mirror_core.set_hidden(name, req.hidden)
     except MirrorError as e:
         _raise_http(e)
 

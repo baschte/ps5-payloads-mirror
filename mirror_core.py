@@ -42,6 +42,10 @@ def register_post_write_hook(fn):
 
 BASE_DIR = Path(__file__).resolve().parent
 JSON_FILE = BASE_DIR / "payloads.json"
+# Local-only storage for hidden mirrors. Never git-tracked, never committed or
+# pushed by server/git_ops.py — see that module's COMMIT_FILES for why it must
+# stay excluded.
+HIDDEN_JSON_FILE = BASE_DIR / "hidden_payloads.json"
 PAYLOADS_DIR = BASE_DIR / "payloads"
 README_FILE = BASE_DIR / "README.md"
 BASE_URL = "https://github.com/baschte/ps5-payloads-mirror/releases/download/payloads-mirror"
@@ -58,7 +62,7 @@ DEFAULT_TITLE = os.environ.get("MIRROR_TITLE") or "PS5 Payloads Mirror"
 FIELD_ORDER = [
     "name", "filename", "url", "source", "source_direct",
     "asset_pattern", "extract_file", "description",
-    "last_update", "version", "checksum",
+    "last_update", "version", "checksum", "sort_order", "hidden",
 ]
 
 
@@ -88,6 +92,27 @@ class ZipExtractNeeded(MirrorError):
         super().__init__(
             "ZIP archive contains multiple .elf files; specify extract_file. "
             f"Candidates: {', '.join(candidates)}"
+        )
+
+
+class AmbiguousAssetError(MirrorError):
+    """A release has more than one plausible asset/file; caller must pick one (HTTP 422).
+
+    ``candidates`` is a flattened list of dicts, each shaped like::
+
+        {"asset_name": "<top-level asset filename>", "member_name": "<in-zip path or None>",
+         "label": "<human-readable choice>"}
+
+    One entry per plausible top-level asset, plus one entry per plausible
+    .elf/.bin member for every top-level asset that is a ZIP.
+    """
+
+    def __init__(self, candidates):
+        self.candidates = candidates
+        labels = ", ".join(c["label"] for c in candidates)
+        super().__init__(
+            f"Release has multiple candidate files; specify which one to use. "
+            f"Candidates: {labels}"
         )
 
 
@@ -210,27 +235,67 @@ def reorder_item(item):
 # payloads.json shape: {"name": "<collection title>", "payloads": [ ... ]}.
 # Older files were a bare list; load_data() transparently migrates them, and the
 # next save writes the wrapped form.
+#
+# hidden_payloads.json holds the same shape, but its "name" is unused — it
+# exists purely as a container for hidden items' "payloads" list, is never
+# git-tracked, and must never be added to server/git_ops.py's COMMIT_FILES.
+#
+# Ordering is driven entirely by each item's "sort_order" (an int); items
+# missing one (pre-existing data from before this field existed) are backfilled
+# based on their current position the first time they're loaded.
 # --------------------------------------------------------------------------- #
-def load_data():
-    """Return the full document as ``{"name": str, "payloads": list}``."""
+def _read_json_document(path):
+    """Return ``(name, payloads)`` from a payloads-shaped JSON file, or
+    ``(None, [])`` if the file is missing. Tolerates the legacy bare-list form."""
     try:
-        with open(JSON_FILE, "r") as f:
+        with open(path, "r") as f:
             raw = json.load(f)
     except FileNotFoundError:
-        return {"name": DEFAULT_TITLE, "payloads": []}
+        return None, []
 
     if isinstance(raw, list):  # legacy bare-list form
-        return {"name": DEFAULT_TITLE, "payloads": raw}
+        return None, raw
     if isinstance(raw, dict):
-        return {
-            "name": (raw.get("name") or DEFAULT_TITLE),
-            "payloads": (raw.get("payloads") or []),
-        }
-    return {"name": DEFAULT_TITLE, "payloads": []}
+        return raw.get("name"), (raw.get("payloads") or [])
+    return None, []
+
+
+def _backfill_sort_order(payloads):
+    """Assign a ``sort_order`` to any item missing one, based on its current
+    position, so pre-existing data keeps its prior visual order as the
+    baseline instead of being scrambled by the introduction of this field."""
+    next_order = max((p["sort_order"] for p in payloads if "sort_order" in p), default=-1) + 1
+    for item in payloads:
+        if "sort_order" not in item:
+            item["sort_order"] = next_order
+            next_order += 1
+
+
+def load_data():
+    """Return the merged document as ``{"name": str, "payloads": list}``.
+
+    ``payloads`` combines the visible file (``payloads.json``) and the hidden
+    file (``hidden_payloads.json``, if present), each item tagged with
+    ``hidden`` (``False``/``True`` respectively unless already set), sorted by
+    ``sort_order`` (backfilled for any item missing one).
+    """
+    visible_name, visible = _read_json_document(JSON_FILE)
+    _, hidden = _read_json_document(HIDDEN_JSON_FILE)
+
+    for item in visible:
+        item.setdefault("hidden", False)
+    for item in hidden:
+        item["hidden"] = True
+
+    payloads = visible + hidden
+    _backfill_sort_order(payloads)
+    payloads.sort(key=lambda x: x["sort_order"])
+
+    return {"name": (visible_name or DEFAULT_TITLE), "payloads": payloads}
 
 
 def load_payloads():
-    """Load the payload list (empty if the file is missing)."""
+    """Load the merged payload list (empty if both files are missing)."""
     return load_data()["payloads"]
 
 
@@ -239,16 +304,14 @@ def get_title():
     return load_data()["name"]
 
 
-def _write_data(name, payloads):
-    """Sort, reorder and persist the document, then regenerate the README.
+def _write_json_document(path, name, payloads):
+    """Atomically persist ``{"name": name, "payloads": payloads}`` to ``path``.
 
     Prefers an atomic write (temp file + ``os.replace``) so a concurrent reader
     never sees a half-written file. When the target is a Docker bind-mounted
     *file*, renaming onto it fails (``EBUSY``/``EXDEV`` — it's a mount point), so
-    we fall back to an in-place write. Writers are serialized by ``DATA_LOCK``.
+    we fall back to an in-place write.
     """
-    payloads.sort(key=lambda x: x.get("last_update", ""), reverse=True)
-    payloads = [reorder_item(p) for p in payloads]
     data = json.dumps({"name": name, "payloads": payloads}, indent=2)
 
     fd, tmp_path = tempfile.mkstemp(dir=str(BASE_DIR), suffix=".json.tmp")
@@ -256,14 +319,30 @@ def _write_data(name, payloads):
         with os.fdopen(fd, "w") as f:
             f.write(data)
         try:
-            os.replace(tmp_path, JSON_FILE)
+            os.replace(tmp_path, path)
         except OSError:
             # Bind-mounted file: can't rename onto a mount point — write in place.
-            with open(JSON_FILE, "w") as f:
+            with open(path, "w") as f:
                 f.write(data)
     finally:
         if os.path.exists(tmp_path):
             os.remove(tmp_path)
+
+
+def _write_data(name, payloads):
+    """Sort, reorder, split by ``hidden`` and persist both documents, then
+    regenerate the README from the visible subset. Writers are serialized by
+    ``DATA_LOCK``.
+    """
+    payloads.sort(key=lambda x: x.get("sort_order", 0))
+    payloads = [reorder_item(p) for p in payloads]
+
+    visible = [p for p in payloads if not p.get("hidden")]
+    hidden = [p for p in payloads if p.get("hidden")]
+
+    _write_json_document(JSON_FILE, name, visible)
+    _write_json_document(HIDDEN_JSON_FILE, name, hidden)
+
     update_readme()
     for hook in _POST_WRITE_HOOKS:
         try:
@@ -290,10 +369,14 @@ def set_title(name):
 # README generation
 # --------------------------------------------------------------------------- #
 def update_readme():
-    """Regenerate the payload table inside README.md from payloads.json."""
+    """Regenerate the payload table inside README.md from payloads.json.
+
+    Only visible mirrors are included — hidden ones are excluded from the
+    published README, matching the public payloads.json feed.
+    """
     data = load_data()
     title = data["name"]
-    payloads = data["payloads"]
+    payloads = [p for p in data["payloads"] if not p.get("hidden")]
 
     table_rows = [
         "| Payload | Version | Description | Last Updated | Source | Download |",
@@ -439,11 +522,142 @@ def _extract_zip_member(gh_url, filename, extract_file):
             os.remove(tmp_path)
 
 
+def _list_zip_members(gh_url):
+    """Download the ZIP at ``gh_url`` and return its plausible .elf/.bin member names."""
+    with tempfile.NamedTemporaryFile(delete=False) as tmp_file:
+        tmp_path = tmp_file.name
+    try:
+        req = urllib.request.Request(gh_url, headers={"User-Agent": "Mozilla/5.0"})
+        with urllib.request.urlopen(req) as response, open(tmp_path, "wb") as f:
+            f.write(response.read())
+        with zipfile.ZipFile(tmp_path, "r") as z:
+            return [n for n in z.namelist() if n.lower().endswith((".elf", ".bin"))]
+    except (OSError, zipfile.BadZipFile) as e:
+        raise MirrorError(f"Error processing zip: {e}") from e
+    finally:
+        if os.path.exists(tmp_path):
+            os.remove(tmp_path)
+
+
+def list_candidates(assets):
+    """Build the flattened candidate list for a release's assets.
+
+    One entry per plausible top-level asset (.elf/.bin/.zip), plus — for any
+    top-level asset that is a .zip — one entry per plausible .elf/.bin member
+    inside it. ZIP contents are only probed when the ZIP is itself a
+    plausible top-level candidate alongside others (i.e. we still skip
+    probing when a non-ZIP asset already makes the release unambiguous),
+    mirroring add_payload's historical elf/bin-over-zip preference.
+
+    Returns a list of dicts: {"asset_name", "member_name", "label"}.
+    """
+    plausible = [a for a in assets if a["name"].lower().endswith((".elf", ".bin", ".zip"))]
+    non_zip = [a for a in plausible if not a["name"].lower().endswith(".zip")]
+    zips = [a for a in plausible if a["name"].lower().endswith(".zip")]
+
+    # Fast path: a single non-zip asset and nothing else plausible — no need
+    # to probe any zip contents at all.
+    if len(non_zip) == 1 and not zips:
+        a = non_zip[0]
+        return [{"asset_name": a["name"], "member_name": None, "label": a["name"]}]
+    if len(plausible) == 1:
+        a = plausible[0]
+        if a["name"].lower().endswith(".zip"):
+            members = _list_zip_members(a["browser_download_url"])
+            if len(members) == 1:
+                return [{
+                    "asset_name": a["name"], "member_name": members[0],
+                    "label": f"{a['name']} → {members[0]}",
+                }]
+            return [
+                {"asset_name": a["name"], "member_name": m, "label": f"{a['name']} → {m}"}
+                for m in members
+            ]
+        return [{"asset_name": a["name"], "member_name": None, "label": a["name"]}]
+
+    candidates = []
+    for a in non_zip:
+        candidates.append({"asset_name": a["name"], "member_name": None, "label": a["name"]})
+    for a in zips:
+        members = _list_zip_members(a["browser_download_url"])
+        for m in members:
+            candidates.append({
+                "asset_name": a["name"], "member_name": m, "label": f"{a['name']} → {m}",
+            })
+    return candidates
+
+
+def resolve_candidate(assets, asset_name=None, member_name=None):
+    """Resolve a release's assets down to exactly one candidate.
+
+    If ``asset_name`` (and, for a ZIP, ``member_name``) is given, that exact
+    candidate is used (after validating it still exists). Otherwise, builds
+    the flattened list via :func:`list_candidates`: exactly one candidate is
+    auto-selected, more than one raises :class:`AmbiguousAssetError`.
+
+    Returns a dict: {"asset": <asset dict>, "member_name": str | None}.
+    """
+    if asset_name:
+        asset = next((a for a in assets if a["name"] == asset_name), None)
+        if not asset:
+            raise MirrorError(f"Asset {asset_name!r} not found in the latest release.")
+        if asset["name"].lower().endswith(".zip"):
+            members = _list_zip_members(asset["browser_download_url"])
+            if member_name:
+                if member_name not in members:
+                    raise MirrorError(f"{member_name!r} not found in {asset_name!r}.")
+                return {"asset": asset, "member_name": member_name}
+            if len(members) == 1:
+                return {"asset": asset, "member_name": members[0]}
+            raise AmbiguousAssetError([
+                {"asset_name": asset["name"], "member_name": m, "label": f"{asset['name']} → {m}"}
+                for m in members
+            ])
+        return {"asset": asset, "member_name": None}
+
+    candidates = list_candidates(assets)
+    if not candidates:
+        raise MirrorError("Could not find a suitable .elf, .bin or .zip asset in the latest release.")
+    if len(candidates) > 1:
+        raise AmbiguousAssetError(candidates)
+    chosen = candidates[0]
+    asset = next(a for a in assets if a["name"] == chosen["asset_name"])
+    return {"asset": asset, "member_name": chosen["member_name"]}
+
+
 def select_update_asset(assets, item):
-    """Pick the best asset for an *existing* payload, mirroring the original
-    scoring in update_payloads.py. Returns the asset dict or None."""
-    repo_name = item.get("name", "")
+    """Resolve the asset to use for an automatic update of an *existing* payload.
+
+    Deterministic: filters strictly by the item's stored ``asset_pattern``
+    (exact top-level asset filename) and, for a ZIP, its stored
+    ``extract_file`` member — no scoring, no prompting. Returns
+    ``{"asset": dict, "member_name": str | None}`` or ``None`` if the stored
+    candidate can no longer be found.
+
+    For legacy items with no stored ``asset_pattern`` (created before this
+    function existed), falls back to the original scoring heuristic exactly
+    once so a candidate can still be picked and then persisted going forward
+    by the caller.
+    """
     asset_pattern = item.get("asset_pattern")
+    if asset_pattern:
+        asset = next((a for a in assets if a["name"] == asset_pattern), None)
+        if not asset:
+            return None
+        member_name = item.get("extract_file")
+        if asset["name"].lower().endswith(".zip") and member_name:
+            members = _list_zip_members(asset["browser_download_url"])
+            if member_name not in members:
+                return None
+        return {"asset": asset, "member_name": member_name}
+
+    return _legacy_score_asset(assets, item)
+
+
+def _legacy_score_asset(assets, item):
+    """Original scoring heuristic, kept only as a one-time fallback for
+    payloads that predate stored asset_pattern/extract_file selections."""
+    repo_name = item.get("name", "")
     has_extract = "extract_file" in item
     preferred_ext = ".bin" if "etaHEN" in repo_name else ".elf"
 
@@ -455,8 +669,6 @@ def select_update_asset(assets, item):
                 or (has_extract and name.endswith(".zip"))):
             if not name.endswith(preferred_ext):
                 return -1
-        if asset_pattern and not re.search(asset_pattern, name, re.IGNORECASE):
-            return -1
         score = 0
         if name.endswith(preferred_ext):
             score += 5
@@ -474,21 +686,42 @@ def select_update_asset(assets, item):
         s = score_asset(asset["name"])
         if s > best:
             best, selected = s, asset
-    return selected if (selected and best > -1) else None
+    if not (selected and best > -1):
+        return None
+
+    member_name = None
+    if selected["name"].lower().endswith(".zip"):
+        member_name = item.get("extract_file")
+        if not member_name:
+            members = _list_zip_members(selected["browser_download_url"])
+            member_name = members[0] if len(members) == 1 else None
+    return {"asset": selected, "member_name": member_name}
 
 
 # --------------------------------------------------------------------------- #
 # Public operations
 # --------------------------------------------------------------------------- #
-def add_payload(url, description="", extract_file=None):
-    """Add a new mirror from a release ``url``. Returns the new payload dict.
-
-    Raises :class:`MirrorError` / :class:`DuplicateError` / :class:`ZipExtractNeeded`.
+def _slugify(title):
+    """Derive a mirror ``name`` from a ``title``: lowercase, collapse every
+    run of non-alphanumeric characters to a single ``-``, strip leading and
+    trailing ``-``. E.g. ``"PS5 Bar Tool - All"`` -> ``"ps5-bar-tool-all"``.
     """
-    url = (url or "").strip()
-    if not url:
-        raise MirrorError("URL is required.")
+    slug = re.sub(r"[^a-z0-9]+", "-", title.strip().lower())
+    return slug.strip("-")
 
+
+def _resolve_release_and_asset(url, asset_name=None, extract_file=None):
+    """Shared resolution used by both add_payload and edit_payload.
+
+    Parses ``url`` into (domain, owner, repo), fetches the latest release,
+    and resolves exactly one candidate asset/member — either the caller's
+    explicit ``asset_name``/``extract_file`` choice, or (if the URL itself
+    points at a specific asset filename and no explicit choice was made)
+    that exact filename, or via the flattened candidate list.
+
+    Returns ``(domain, owner, repo, release, asset, member_name)``.
+    Raises :class:`MirrorError` / :class:`AmbiguousAssetError`.
+    """
     domain, owner, repo = get_repo_info(url)
     if not owner:
         raise MirrorError("Could not parse Git domain/owner/repo from URL.")
@@ -497,61 +730,259 @@ def add_payload(url, description="", extract_file=None):
     if not release:
         raise MirrorError(f"Could not fetch latest release for {owner}/{repo} on {domain}.")
 
-    filename_match = re.search(r"/([^/]+\.(elf|bin|zip))$", url)
-    original_filename = filename_match.group(1) if filename_match else None
-
     assets = release.get("assets", [])
-    selected_asset = None
-    if original_filename:
-        selected_asset = next(
-            (a for a in assets if a["name"] == original_filename), None
-        )
-    if not selected_asset and assets:
-        selected_asset = next(
-            (a for a in assets if a["name"].endswith((".elf", ".bin"))), None
-        ) or next((a for a in assets if a["name"].endswith(".zip")), None)
-    if not selected_asset:
-        raise MirrorError("Could not find a suitable .elf, .bin or .zip asset in the latest release.")
+
+    if not asset_name:
+        filename_match = re.search(r"/([^/]+\.(elf|bin|zip))$", url)
+        if filename_match and any(a["name"] == filename_match.group(1) for a in assets):
+            asset_name = filename_match.group(1)
+
+    resolved = resolve_candidate(assets, asset_name=asset_name, member_name=extract_file)
+    return domain, owner, repo, release, resolved["asset"], resolved["member_name"]
+
+
+def add_payload(url, description="", extract_file=None, asset_name=None, title=None):
+    """Add a new mirror from a release ``url``. Returns the new payload dict.
+
+    ``asset_name``/``extract_file`` pin an explicit candidate (as returned by
+    a prior :class:`AmbiguousAssetError`); otherwise the release's assets are
+    resolved via the flattened candidate list, auto-selecting when there's
+    exactly one plausible candidate.
+
+    ``title``, if given, is stored as the mirror's display title, and its
+    slug (see :func:`_slugify`) is used as ``name`` instead of the repo name.
+
+    Raises :class:`MirrorError` / :class:`DuplicateError` / :class:`AmbiguousAssetError`.
+    """
+    url = (url or "").strip()
+    if not url:
+        raise MirrorError("URL is required.")
+
+    domain, owner, repo, release, selected_asset, member_name = _resolve_release_and_asset(
+        url, asset_name=asset_name, extract_file=extract_file
+    )
 
     payloads = load_payloads()
     source_url = f"https://{domain}/{owner}/{repo}/releases"
     if any(p.get("source") == source_url for p in payloads):
         raise DuplicateError(f"A payload from {source_url} already exists.")
 
+    item_name = repo
+    if title and title.strip():
+        slug = _slugify(title)
+        if slug:
+            if any(p.get("name") == slug for p in payloads):
+                raise DuplicateError(f"A payload named {slug!r} already exists.")
+            item_name = slug
+
+    new_item = _download_and_build_item(
+        item_name, source_url, release, selected_asset, member_name, description, title=title
+    )
+    new_item["sort_order"] = max(
+        (p.get("sort_order", -1) for p in payloads), default=-1
+    ) + 1
+    new_item["hidden"] = False
+
+    payloads.append(new_item)
+    save_payloads(payloads)
+    return reorder_item(new_item)
+
+
+def _download_and_build_item(name, source_url, release, selected_asset, member_name, description, title=None):
+    """Download the resolved asset (extracting ``member_name`` if it's a ZIP)
+    and build the payload dict. Shared by add_payload and edit_payload."""
     gh_url = selected_asset["browser_download_url"]
     new_version = release["tag_name"]
-    is_zip = selected_asset["name"].endswith(".zip")
+    is_zip = selected_asset["name"].lower().endswith(".zip")
     if is_zip:
         ext = "elf"
     else:
         ext = (selected_asset["name"].rsplit(".", 1)[1]
                if "." in selected_asset["name"] else "bin")
 
-    filename = f"{repo}_{new_version}.{ext}"
+    filename = f"{name}_{new_version}.{ext}"
     filepath = PAYLOADS_DIR / filename
 
-    used_extract = None
     if is_zip:
-        used_extract = _extract_zip_member(gh_url, filename, extract_file)
+        _extract_zip_member(gh_url, filename, member_name)
     else:
         if not download_file(gh_url, filename):
             raise MirrorError("Failed to download the payload asset.")
 
     new_item = {
-        "name": repo,
+        "name": name,
         "filename": filename,
+        "title": (title or "").strip() or None,
         "url": f"{BASE_URL}/{filename}",
         "source": source_url,
         "source_direct": gh_url,
+        "asset_pattern": selected_asset["name"],
         "description": (description or "").strip(),
         "last_update": release["published_at"][:10],
         "version": new_version,
         "checksum": calculate_checksum(filepath),
     }
-    if used_extract:
-        new_item["extract_file"] = used_extract
+    if is_zip and member_name:
+        new_item["extract_file"] = member_name
+    return new_item
 
-    payloads.append(new_item)
+
+def list_candidates_for_payload(name):
+    """Read-only: fetch the latest release for an existing mirror's current
+    source and return its flattened candidate list (see list_candidates),
+    without persisting anything. Used by the edit UI to let the user switch
+    assets/files even when the source URL itself isn't changing.
+
+    Returns a list of dicts: {"asset_name", "member_name", "label"}.
+    Raises :class:`NotFoundError` / :class:`MirrorError`.
+    """
+    payloads = load_payloads()
+    item = next((p for p in payloads if p.get("name") == name), None)
+    if item is None:
+        raise NotFoundError(f"No payload named {name!r}.")
+
+    source = item.get("source")
+    if not source:
+        raise MirrorError("This mirror has no source URL to resolve.")
+
+    domain, owner, repo = get_repo_info(source)
+    if not owner:
+        raise MirrorError("Could not parse Git domain/owner/repo from source URL.")
+
+    release = get_latest_release(domain, owner, repo)
+    if not release:
+        raise MirrorError(f"Could not fetch latest release for {owner}/{repo} on {domain}.")
+
+    assets = release.get("assets", [])
+    candidates = list_candidates(assets)
+    if not candidates:
+        raise MirrorError("Could not find a suitable .elf, .bin or .zip asset in the latest release.")
+    return candidates
+
+
+def edit_payload(name, url=None, description=None, extract_file=None, asset_name=None, title=None):
+    """Edit an existing mirror in place. Returns the updated payload dict.
+
+    - If ``url`` is omitted, the mirror's source is left unchanged.
+      ``description`` and ``title`` are always patched with no network call.
+      When ``title`` is set and its slug (see :func:`_slugify`) differs from
+      the mirror's current ``name``, the mirror is renamed: its ``name``,
+      ``filename`` (renamed on disk, not re-downloaded) and ``url`` are
+      updated to match, rejected if the slug collides with a *different*
+      mirror's ``name``. If ``asset_name`` and/or ``extract_file`` name a
+      different candidate than currently stored, the source's latest release
+      is re-fetched and that candidate is downloaded/extracted, without
+      changing the source itself.
+    - If ``url`` is given, the release is re-resolved exactly like
+      add_payload (using ``asset_name``/``extract_file`` as an explicit pick
+      when given), and the item is replaced in place at its current
+      position — its name, filename, url, source, etc. may all change.
+    - The duplicate-source check excludes the item being edited itself.
+
+    Raises :class:`MirrorError` / :class:`DuplicateError` /
+    :class:`NotFoundError` / :class:`AmbiguousAssetError`.
+    """
+    payloads = load_payloads()
+    index = next((i for i, p in enumerate(payloads) if p.get("name") == name), None)
+    if index is None:
+        raise NotFoundError(f"No payload named {name!r}.")
+    item = payloads[index]
+
+    url = url.strip() if url else None
+    source_unchanged = not url or url == item.get("source")
+
+    if source_unchanged:
+        # dict(item) copies sort_order/hidden along with everything else; the
+        # asset-switch sub-branch below only updates via `rebuilt`, which never
+        # carries those keys, so they're preserved without any extra handling.
+        updated = dict(item)
+        if description is not None:
+            updated["description"] = description.strip()
+
+        others = payloads[:index] + payloads[index + 1:]
+        new_slug = None
+        if title is not None:
+            updated["title"] = title.strip() or None
+            if updated["title"]:
+                slug = _slugify(updated["title"])
+                if slug and slug != item.get("name"):
+                    if any(p.get("name") == slug for p in others):
+                        raise DuplicateError(f"A payload named {slug!r} already exists.")
+                    new_slug = slug
+
+        asset_changed = asset_name is not None and asset_name != item.get("asset_pattern")
+        member_changed = extract_file is not None and extract_file != item.get("extract_file")
+        if asset_changed or member_changed:
+            domain, owner, repo = get_repo_info(item["source"])
+            release = get_latest_release(domain, owner, repo)
+            if not release:
+                raise MirrorError(f"Could not fetch latest release for {owner}/{repo} on {domain}.")
+            resolved = resolve_candidate(
+                release.get("assets", []),
+                asset_name=asset_name or item.get("asset_pattern"),
+                member_name=extract_file,
+            )
+            rebuilt = _download_and_build_item(
+                new_slug or updated.get("name", name), updated["source"], release,
+                resolved["asset"], resolved["member_name"], updated.get("description", ""),
+                title=updated.get("title"),
+            )
+            if item.get("filename") and item["filename"] != rebuilt["filename"]:
+                old_path = PAYLOADS_DIR / item["filename"]
+                if old_path.exists():
+                    old_path.unlink()
+            updated.pop("extract_file", None)
+            updated.update(rebuilt)
+        elif new_slug:
+            # Title-only change that renames the entry: move the existing
+            # file on disk to match the new name, no re-download needed.
+            old_filename = item.get("filename")
+            new_filename = old_filename.replace(item["name"], new_slug, 1) if old_filename else old_filename
+            if old_filename and new_filename != old_filename:
+                old_path = PAYLOADS_DIR / old_filename
+                new_path = PAYLOADS_DIR / new_filename
+                if old_path.exists():
+                    old_path.rename(new_path)
+                updated["filename"] = new_filename
+                updated["url"] = f"{BASE_URL}/{new_filename}"
+            updated["name"] = new_slug
+
+        payloads[index] = updated
+        save_payloads(payloads)
+        return reorder_item(updated)
+
+    # Source URL changed: re-resolve fully, like add_payload, then replace in place.
+    others = payloads[:index] + payloads[index + 1:]
+    domain, owner, repo, release, selected_asset, member_name = _resolve_release_and_asset(
+        url, asset_name=asset_name, extract_file=extract_file
+    )
+    source_url = f"https://{domain}/{owner}/{repo}/releases"
+    if any(p.get("source") == source_url for p in others):
+        raise DuplicateError(f"A payload from {source_url} already exists.")
+
+    new_description = description if description is not None else item.get("description", "")
+    new_title = title if title is not None else item.get("title")
+    new_name = repo
+    if new_title and new_title.strip():
+        slug = _slugify(new_title)
+        if slug:
+            if any(p.get("name") == slug for p in others):
+                raise DuplicateError(f"A payload named {slug!r} already exists.")
+            new_name = slug
+    new_item = _download_and_build_item(
+        new_name, source_url, release, selected_asset, member_name, new_description, title=new_title
+    )
+    # Preserve manual sort order and hidden status across a source URL change —
+    # neither is a side effect a URL edit should reset (see mirror-editing spec).
+    new_item["sort_order"] = item.get("sort_order", 0)
+    new_item["hidden"] = item.get("hidden", False)
+
+    if item.get("filename") and item["filename"] != new_item["filename"]:
+        old_path = PAYLOADS_DIR / item["filename"]
+        if old_path.exists():
+            old_path.unlink()
+
+    payloads[index] = new_item
     save_payloads(payloads)
     return reorder_item(new_item)
 
@@ -583,9 +1014,12 @@ def update_one(name, payloads=None, mirror_assets=None, persist=True):
     if not release or not release.get("assets"):
         return {"updated": False, "item": reorder_item(item), "message": "No release/assets found upstream."}
 
-    selected_asset = select_update_asset(release["assets"], item)
-    if not selected_asset:
-        return {"updated": False, "item": reorder_item(item), "message": "No suitable asset found."}
+    resolved = select_update_asset(release["assets"], item)
+    if not resolved:
+        return {"updated": False, "item": reorder_item(item),
+                "message": "Previously selected asset no longer found upstream."}
+    selected_asset = resolved["asset"]
+    resolved_member_name = resolved["member_name"]
 
     gh_url = selected_asset["browser_download_url"]
     original_filename = selected_asset["name"]
@@ -601,12 +1035,28 @@ def update_one(name, payloads=None, mirror_assets=None, persist=True):
     new_filename = f"{final_name}_{new_version}.{ext}"
     filepath = PAYLOADS_DIR / new_filename
 
+    # Migration-on-touch: persist the resolved candidate identity so future
+    # checks are deterministic (skip select_update_asset's legacy scoring
+    # fallback entirely once this is recorded).
+    candidate_changed = (
+        item.get("asset_pattern") != selected_asset["name"]
+        or (is_zip and item.get("extract_file") != resolved_member_name)
+    )
+    if candidate_changed:
+        item["asset_pattern"] = selected_asset["name"]
+        if is_zip and resolved_member_name:
+            item["extract_file"] = resolved_member_name
+        elif not is_zip:
+            item.pop("extract_file", None)
+
     needs_download = (
         item.get("version") != new_version
         or item.get("filename") != new_filename
         or new_filename not in mirror_assets
     )
     if not needs_download:
+        if candidate_changed and own_list and persist:
+            save_payloads(payloads)
         return {"updated": False, "item": reorder_item(item),
                 "message": f"Already up to date ({new_version})."}
 
@@ -616,7 +1066,7 @@ def update_one(name, payloads=None, mirror_assets=None, persist=True):
         if old_path.exists():
             old_path.unlink()
 
-    extract_file = item.get("extract_file")
+    extract_file = resolved_member_name
     if is_zip:
         extract_file = _extract_zip_member(gh_url, new_filename, extract_file)
     else:
@@ -632,6 +1082,7 @@ def update_one(name, payloads=None, mirror_assets=None, persist=True):
     item["source_direct"] = gh_url
     item["last_update"] = new_date
     item["checksum"] = calculate_checksum(filepath)
+    item["asset_pattern"] = selected_asset["name"]
     if extract_file and is_zip:
         item["extract_file"] = extract_file
 
@@ -682,3 +1133,48 @@ def remove_payload(name):
     payloads = [p for p in payloads if p.get("name") != name]
     save_payloads(payloads)
     return {"removed": name}
+
+
+def reorder_payloads(names_in_order):
+    """Persist a new manual ordering for every known mirror (visible + hidden).
+
+    ``names_in_order`` must contain exactly the current set of mirror names,
+    each exactly once, in the desired order. Assigns sort_order in step
+    increments and persists in one write. Returns the updated merged list.
+
+    Raises :class:`MirrorError` if the given names don't exactly match the
+    current set of known mirrors.
+    """
+    payloads = load_payloads()
+    current_names = {p.get("name") for p in payloads}
+    given_names = list(names_in_order)
+
+    if len(given_names) != len(set(given_names)):
+        raise MirrorError("Reorder list contains duplicate names.")
+    if set(given_names) != current_names:
+        raise MirrorError(
+            "Reorder list must contain exactly the current set of mirror names."
+        )
+
+    order_index = {name: i for i, name in enumerate(given_names)}
+    for item in payloads:
+        item["sort_order"] = (order_index[item.get("name")] + 1) * 10
+
+    save_payloads(payloads)
+    return load_payloads()
+
+
+def set_hidden(name, hidden):
+    """Set a mirror's hidden status (moves it between payloads.json and
+    hidden_payloads.json on the next write). Returns the updated item.
+
+    Raises :class:`NotFoundError` if no mirror with that name exists.
+    """
+    payloads = load_payloads()
+    item = next((p for p in payloads if p.get("name") == name), None)
+    if item is None:
+        raise NotFoundError(f"No payload named {name!r}.")
+
+    item["hidden"] = bool(hidden)
+    save_payloads(payloads)
+    return reorder_item(item)

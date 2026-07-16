@@ -15,3 +15,6 @@ web/dist/
 # Runtime config
 scheduler_config.json
 .env
+
+# Hidden mirrors (local-only; never published) — see mirror_core.HIDDEN_JSON_FILE
+hidden_payloads.json

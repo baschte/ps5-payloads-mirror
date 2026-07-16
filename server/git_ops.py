@@ -24,6 +24,9 @@ GIT_PASSWORD = os.environ.get("GIT_PASSWORD", "")
 GIT_AUTHOR_NAME = os.environ.get("GIT_AUTHOR_NAME", "")
 GIT_AUTHOR_EMAIL = os.environ.get("GIT_AUTHOR_EMAIL", "")
 
+# Do NOT add mirror_core.HIDDEN_JSON_FILE ("hidden_payloads.json") here. Hidden
+# mirrors are deliberately local-only and must never be staged, committed, or
+# pushed — that's the entire point of the hidden/visibility feature.
 COMMIT_FILES = ["payloads.json", "README.md"]
 COMMIT_MESSAGE = "Update payloads metadata via web UI"
 

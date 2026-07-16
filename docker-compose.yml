@@ -38,8 +38,10 @@ services:
     volumes:
       # Mount the whole repo so the container has the full git working tree
       # (incl. .git) for the "Publish to GitHub" button, and so payloads.json /
-      # README.md / payloads/ persist on the host. The built frontend lives at
-      # /opt/web/dist inside the image, so this mount does not hide it.
+      # README.md / payloads/ persist on the host. This also covers
+      # hidden_payloads.json (local-only, git-ignored — see .gitignore), so
+      # hidden mirrors survive a container rebuild too. The built frontend
+      # lives at /opt/web/dist inside the image, so this mount does not hide it.
       - .:/app
 
     healthcheck:

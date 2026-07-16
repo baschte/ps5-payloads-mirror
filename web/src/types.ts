@@ -1,5 +1,6 @@
 export interface Payload {
   name: string;
+  title?: string | null;
   filename?: string | null;
   url?: string | null;
   source?: string | null;
@@ -10,6 +11,8 @@ export interface Payload {
   last_update?: string | null;
   version?: string | null;
   checksum?: string | null;
+  sort_order?: number | null;
+  hidden: boolean;
 }
 
 export interface UpdateResult {
@@ -46,12 +49,27 @@ export interface GitPushResult {
   message: string;
 }
 
-/** Error thrown by the API client; `candidates` is set for 422 ZIP-ambiguity. */
+/** One selectable candidate file for an ambiguous release (top-level asset, or a member inside a ZIP asset). */
+export interface Candidate {
+  asset_name: string;
+  member_name: string | null;
+  label: string;
+}
+
+export interface EditPayloadRequest {
+  url?: string;
+  description?: string;
+  title?: string;
+  asset_name?: string | null;
+  extract_file?: string | null;
+}
+
+/** Error thrown by the API client; `candidates` is set for 422 candidate-ambiguity. */
 export class ApiError extends Error {
   status: number;
-  candidates?: string[];
+  candidates?: Candidate[];
 
-  constructor(message: string, status: number, candidates?: string[]) {
+  constructor(message: string, status: number, candidates?: Candidate[]) {
     super(message);
     this.name = "ApiError";
     this.status = status;

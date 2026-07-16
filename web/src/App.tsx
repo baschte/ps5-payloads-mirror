@@ -4,6 +4,8 @@ import {
     getTitle,
     gitPush,
     listPayloads,
+    reorderPayloads,
+    setPayloadHidden,
     setTitle,
     updateAll,
 } from './api';
@@ -135,9 +137,14 @@ export function App() {
         void refresh();
     }
 
-    function handleUpdated(item: Payload, message: string, changed: boolean) {
+    function handleUpdated(
+        item: Payload,
+        message: string,
+        changed: boolean,
+        previousName?: string,
+    ) {
         setPayloads((prev) =>
-            prev.map((p) => (p.name === item.name ? item : p))
+            prev.map((p) => (p.name === (previousName ?? item.name) ? item : p))
         );
         notify(changed ? 'success' : 'info', message);
     }
@@ -166,6 +173,48 @@ export function App() {
             );
         } finally {
             setUpdatingAll(false);
+        }
+    }
+
+    // Reorder is optimistic: the list is reordered locally immediately, the
+    // bulk request fires in the background, and a failure reverts to the
+    // order captured just before this drag started.
+    function handleReorder(draggedName: string, targetName: string) {
+        const previous = payloads;
+        const draggedIndex = previous.findIndex((p) => p.name === draggedName);
+        const targetIndex = previous.findIndex((p) => p.name === targetName);
+        if (draggedIndex === -1 || targetIndex === -1) return;
+
+        const reordered = [...previous];
+        const [dragged] = reordered.splice(draggedIndex, 1);
+        reordered.splice(targetIndex, 0, dragged);
+
+        setPayloads(reordered);
+        void reorderPayloads(reordered.map((p) => p.name)).catch((err) => {
+            setPayloads(previous);
+            notify(
+                'error',
+                err instanceof Error ? err.message : 'Failed to save the new order.'
+            );
+        });
+    }
+
+    async function handleToggleHidden(payload: Payload) {
+        const nextHidden = !payload.hidden;
+        try {
+            const saved = await setPayloadHidden(payload.name, nextHidden);
+            setPayloads((prev) =>
+                prev.map((p) => (p.name === saved.name ? saved : p))
+            );
+            notify(
+                'success',
+                nextHidden ? `${payload.name} hidden.` : `${payload.name} shown.`
+            );
+        } catch (err) {
+            notify(
+                'error',
+                err instanceof Error ? err.message : 'Failed to change visibility.'
+            );
         }
     }
 
@@ -340,6 +389,8 @@ export function App() {
                             onUpdated={handleUpdated}
                             onRemoved={handleRemoved}
                             onError={(m) => notify('error', m)}
+                            onReorder={handleReorder}
+                            onToggleHidden={(p) => void handleToggleHidden(p)}
                         />
                     )}
                 </section>

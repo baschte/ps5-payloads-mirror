@@ -1,15 +1,31 @@
 import { useState } from "react";
 import { deletePayload, updatePayload } from "../api";
 import type { Payload } from "../types";
-import { IconExternal, IconSync, IconTrash } from "./icons";
+import { EditMirrorDialog } from "./EditMirrorDialog";
+import {
+  IconExternal,
+  IconEye,
+  IconEyeOff,
+  IconGrip,
+  IconPencil,
+  IconSync,
+  IconTrash,
+} from "./icons";
 
 interface PayloadRowProps {
   payload: Payload;
   busy: boolean;
-  onUpdated: (payload: Payload, message: string, changed: boolean) => void;
+  onUpdated: (
+    payload: Payload,
+    message: string,
+    changed: boolean,
+    previousName?: string,
+  ) => void;
   onRemoved: (name: string) => void;
   onError: (message: string) => void;
   setBusy: (busy: boolean) => void;
+  onReorder: (draggedName: string, targetName: string) => void;
+  onToggleHidden: (payload: Payload) => void;
 }
 
 export function PayloadRow({
@@ -19,8 +35,14 @@ export function PayloadRow({
   onRemoved,
   onError,
   setBusy,
+  onReorder,
+  onToggleHidden,
 }: PayloadRowProps) {
   const [action, setAction] = useState<"update" | "remove" | null>(null);
+  const [editing, setEditing] = useState(false);
+  // Transient, purely visual drag state — local to this row, never lifted.
+  const [dragging, setDragging] = useState(false);
+  const [dropTarget, setDropTarget] = useState(false);
 
   async function handleUpdate() {
     setBusy(true);
@@ -55,12 +77,43 @@ export function PayloadRow({
 
   return (
     <tr
+      draggable
+      onDragStart={(e) => {
+        e.dataTransfer.setData("text/plain", payload.name);
+        e.dataTransfer.effectAllowed = "move";
+        setDragging(true);
+      }}
+      onDragEnd={() => setDragging(false)}
+      onDragOver={(e) => {
+        e.preventDefault();
+        e.dataTransfer.dropEffect = "move";
+        if (!dropTarget) setDropTarget(true);
+      }}
+      onDragLeave={() => setDropTarget(false)}
+      onDrop={(e) => {
+        e.preventDefault();
+        setDropTarget(false);
+        const draggedName = e.dataTransfer.getData("text/plain");
+        if (draggedName && draggedName !== payload.name) {
+          onReorder(draggedName, payload.name);
+        }
+      }}
       className={`border-b border-line transition-colors last:border-0 hover:bg-paper/60 ${
         busy ? "opacity-55" : ""
-      }`}
+      } ${dragging ? "opacity-40" : ""} ${
+        dropTarget ? "bg-brand-50 dark:bg-brand-500/10" : ""
+      } ${payload.hidden ? "opacity-50" : ""}`}
     >
+      <td className="cursor-grab px-3 py-4 align-top text-faint active:cursor-grabbing">
+        <IconGrip className="h-4 w-4" />
+      </td>
       <td className="px-5 py-4 align-top">
-        <div className="font-semibold text-ink">{payload.name}</div>
+        <div className="flex items-center gap-2">
+          <span className="font-semibold text-ink">{payload.title ?? payload.name}</span>
+          {payload.hidden && (
+            <span className="chip bg-paper text-faint">Hidden</span>
+          )}
+        </div>
         {payload.description && (
           <div className="mt-0.5 line-clamp-2 max-w-[44ch] text-xs leading-relaxed text-muted">
             {payload.description}
@@ -103,6 +156,29 @@ export function PayloadRow({
           </button>
           <button
             type="button"
+            className="btn btn-sm btn-ghost"
+            onClick={() => onToggleHidden(payload)}
+            disabled={busy}
+            aria-label={payload.hidden ? `Show ${payload.name}` : `Hide ${payload.name}`}
+            title={payload.hidden ? "Show in published feed" : "Hide from published feed"}
+          >
+            {payload.hidden ? (
+              <IconEyeOff className="h-3.5 w-3.5" />
+            ) : (
+              <IconEye className="h-3.5 w-3.5" />
+            )}
+          </button>
+          <button
+            type="button"
+            className="btn btn-sm btn-ghost"
+            onClick={() => setEditing(true)}
+            disabled={busy}
+            aria-label={`Edit ${payload.name}`}
+          >
+            <IconPencil className="h-3.5 w-3.5" />
+          </button>
+          <button
+            type="button"
             className="btn btn-sm btn-danger"
             onClick={handleRemove}
             disabled={busy}
@@ -112,6 +188,18 @@ export function PayloadRow({
           </button>
         </div>
       </td>
+
+      {editing && (
+        <EditMirrorDialog
+          payload={payload}
+          onClose={() => setEditing(false)}
+          onError={onError}
+          onSaved={(saved) => {
+            setEditing(false);
+            onUpdated(saved, `${payload.name}: mirror updated.`, true, payload.name);
+          }}
+        />
+      )}
     </tr>
   );
 }

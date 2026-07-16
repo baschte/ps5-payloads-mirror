@@ -1,6 +1,8 @@
 import { ApiError } from "./types";
 import type {
+  Candidate,
   CollectionTitle,
+  EditPayloadRequest,
   GitPushResult,
   GitStatus,
   Payload,
@@ -18,7 +20,7 @@ async function toApiError(res: Response): Promise<ApiError> {
     detail = res.statusText;
   }
   if (detail && typeof detail === "object" && "message" in detail) {
-    const d = detail as { message: string; candidates?: string[] };
+    const d = detail as { message: string; candidates?: Candidate[] };
     return new ApiError(d.message, res.status, d.candidates);
   }
   return new ApiError(
@@ -55,12 +57,31 @@ export function listPayloads(): Promise<Payload[]> {
 export function addPayload(body: {
   url: string;
   description?: string;
+  title?: string;
+  asset_name?: string | null;
   extract_file?: string | null;
 }): Promise<Payload> {
   return request<Payload>("/api/payloads", {
     method: "POST",
     body: JSON.stringify(body),
   });
+}
+
+export function editPayload(
+  name: string,
+  body: EditPayloadRequest,
+): Promise<Payload> {
+  return request<Payload>(`/api/payloads/${encodeURIComponent(name)}`, {
+    method: "PUT",
+    body: JSON.stringify(body),
+  });
+}
+
+/** Candidate files for a mirror's current (unchanged) source's latest release. */
+export function getPayloadCandidates(name: string): Promise<Candidate[]> {
+  return request<Candidate[]>(
+    `/api/payloads/${encodeURIComponent(name)}/candidates`,
+  );
 }
 
 export function updatePayload(name: string): Promise<UpdateResult> {
@@ -79,6 +100,24 @@ export function updateAll(): Promise<UpdateAllResult[]> {
 export function deletePayload(name: string): Promise<void> {
   return request<void>(`/api/payloads/${encodeURIComponent(name)}`, {
     method: "DELETE",
+  });
+}
+
+/** Persist a full manual reorder — every known mirror name, once each, in the new order. */
+export function reorderPayloads(names: string[]): Promise<Payload[]> {
+  return request<Payload[]>("/api/payloads/reorder", {
+    method: "PUT",
+    body: JSON.stringify({ names }),
+  });
+}
+
+export function setPayloadHidden(
+  name: string,
+  hidden: boolean,
+): Promise<Payload> {
+  return request<Payload>(`/api/payloads/${encodeURIComponent(name)}/hidden`, {
+    method: "PUT",
+    body: JSON.stringify({ hidden }),
   });
 }
 

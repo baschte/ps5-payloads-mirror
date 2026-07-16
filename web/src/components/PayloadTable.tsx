@@ -5,9 +5,16 @@ interface PayloadTableProps {
   payloads: Payload[];
   busyName: string | null;
   onSetBusy: (name: string | null) => void;
-  onUpdated: (payload: Payload, message: string, changed: boolean) => void;
+  onUpdated: (
+    payload: Payload,
+    message: string,
+    changed: boolean,
+    previousName?: string,
+  ) => void;
   onRemoved: (name: string) => void;
   onError: (message: string) => void;
+  onReorder: (draggedName: string, targetName: string) => void;
+  onToggleHidden: (payload: Payload) => void;
 }
 
 export function PayloadTable({
@@ -17,6 +24,8 @@ export function PayloadTable({
   onUpdated,
   onRemoved,
   onError,
+  onReorder,
+  onToggleHidden,
 }: PayloadTableProps) {
   if (payloads.length === 0) {
     return (
@@ -33,6 +42,9 @@ export function PayloadTable({
         <table className="w-full text-left text-sm">
           <thead>
             <tr className="border-b border-line text-xs font-medium uppercase tracking-wide text-faint">
+              <th scope="col" className="w-8 px-3 py-3.5">
+                <span className="sr-only">Reorder</span>
+              </th>
               <th scope="col" className="px-5 py-3.5">Payload</th>
               <th scope="col" className="px-4 py-3.5">Version</th>
               <th scope="col" className="hidden px-4 py-3.5 sm:table-cell">Updated</th>
@@ -50,6 +62,8 @@ export function PayloadTable({
                 onUpdated={onUpdated}
                 onRemoved={onRemoved}
                 onError={onError}
+                onReorder={onReorder}
+                onToggleHidden={onToggleHidden}
               />
             ))}
           </tbody>
