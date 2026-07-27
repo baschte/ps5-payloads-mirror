@@ -61,7 +61,7 @@ DEFAULT_TITLE = os.environ.get("MIRROR_TITLE") or "PS5 Payloads Mirror"
 
 FIELD_ORDER = [
     "name", "filename", "url", "source", "source_direct",
-    "asset_pattern", "extract_file", "description",
+    "asset_pattern", "extract_file", "description", "category",
     "last_update", "version", "checksum", "sort_order", "hidden",
 ]
 
@@ -759,7 +759,7 @@ def _resolve_release_and_asset(url, asset_name=None, extract_file=None):
     return domain, owner, repo, release, resolved["asset"], resolved["member_name"]
 
 
-def add_payload(url, description="", extract_file=None, asset_name=None, title=None):
+def add_payload(url, description="", extract_file=None, asset_name=None, title=None, category=None):
     """Add a new mirror from a release ``url``. Returns the new payload dict.
 
     ``asset_name``/``extract_file`` pin an explicit candidate (as returned by
@@ -769,6 +769,9 @@ def add_payload(url, description="", extract_file=None, asset_name=None, title=N
 
     ``title``, if given, is stored as the mirror's display title, and its
     slug (see :func:`_slugify`) is used as ``name`` instead of the repo name.
+
+    ``category``, if given, is stored as the mirror's single free-text
+    category.
 
     Raises :class:`MirrorError` / :class:`DuplicateError` / :class:`AmbiguousAssetError`.
     """
@@ -796,7 +799,8 @@ def add_payload(url, description="", extract_file=None, asset_name=None, title=N
             item_name = slug
 
     new_item = _download_and_build_item(
-        item_name, source_url, release, selected_asset, member_name, description, title=title
+        item_name, source_url, release, selected_asset, member_name, description,
+        title=title, category=category,
     )
     new_item["sort_order"] = max(
         (p.get("sort_order", -1) for p in payloads), default=-1
@@ -808,7 +812,7 @@ def add_payload(url, description="", extract_file=None, asset_name=None, title=N
     return reorder_item(new_item)
 
 
-def _download_and_build_item(name, source_url, release, selected_asset, member_name, description, title=None):
+def _download_and_build_item(name, source_url, release, selected_asset, member_name, description, title=None, category=None):
     """Download the resolved asset (extracting ``member_name`` if it's a ZIP)
     and build the payload dict. Shared by add_payload and edit_payload."""
     gh_url = selected_asset["browser_download_url"]
@@ -838,6 +842,7 @@ def _download_and_build_item(name, source_url, release, selected_asset, member_n
         "source_direct": gh_url,
         "asset_pattern": selected_asset["name"],
         "description": (description or "").strip(),
+        "category": (category or "").strip() or None,
         "last_update": release["published_at"][:10],
         "version": new_version,
         "checksum": calculate_checksum(filepath),
@@ -880,11 +885,14 @@ def list_candidates_for_payload(name):
     return candidates
 
 
-def edit_payload(name, url=None, description=None, extract_file=None, asset_name=None, title=None):
+def edit_payload(name, url=None, description=None, extract_file=None, asset_name=None, title=None, category=None):
     """Edit an existing mirror in place. Returns the updated payload dict.
 
     - If ``url`` is omitted, the mirror's source is left unchanged.
-      ``description`` and ``title`` are always patched with no network call.
+      ``description``, ``title``, and ``category`` are always patched with no
+      network call. ``category`` follows the same omitted/empty/value
+      convention as ``title``: omitted (``None``) leaves it unchanged, an
+      empty string clears it, any other value replaces it.
       When ``title`` is set and its slug (see :func:`_slugify`) differs from
       the mirror's current ``name``, the mirror is renamed: its ``name``,
       ``filename`` (renamed on disk, not re-downloaded) and ``url`` are
@@ -918,6 +926,8 @@ def edit_payload(name, url=None, description=None, extract_file=None, asset_name
         updated = dict(item)
         if description is not None:
             updated["description"] = description.strip()
+        if category is not None:
+            updated["category"] = category.strip() or None
 
         others = payloads[:index] + payloads[index + 1:]
         new_slug = None
@@ -945,7 +955,7 @@ def edit_payload(name, url=None, description=None, extract_file=None, asset_name
             rebuilt = _download_and_build_item(
                 new_slug or updated.get("name", name), updated["source"], release,
                 resolved["asset"], resolved["member_name"], updated.get("description", ""),
-                title=updated.get("title"),
+                title=updated.get("title"), category=updated.get("category"),
             )
             if item.get("filename") and item["filename"] != rebuilt["filename"]:
                 old_path = PAYLOADS_DIR / item["filename"]
@@ -984,6 +994,7 @@ def edit_payload(name, url=None, description=None, extract_file=None, asset_name
 
     new_description = description if description is not None else item.get("description", "")
     new_title = title if title is not None else item.get("title")
+    new_category = category if category is not None else item.get("category")
     new_name = repo
     if new_title and new_title.strip():
         slug = _slugify(new_title)
@@ -992,7 +1003,8 @@ def edit_payload(name, url=None, description=None, extract_file=None, asset_name
                 raise DuplicateError(f"A payload named {slug!r} already exists.")
             new_name = slug
     new_item = _download_and_build_item(
-        new_name, source_url, release, selected_asset, member_name, new_description, title=new_title
+        new_name, source_url, release, selected_asset, member_name, new_description,
+        title=new_title, category=new_category,
     )
     # Preserve manual sort order and hidden status across a source URL change —
     # neither is a side effect a URL edit should reset (see mirror-editing spec).

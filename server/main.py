@@ -120,6 +120,7 @@ class Payload(BaseModel):
     asset_pattern: str | None = None
     extract_file: str | None = None
     description: str | None = None
+    category: str | None = None
     last_update: str | None = None
     version: str | None = None
     checksum: str | None = None
@@ -131,6 +132,7 @@ class AddPayloadRequest(BaseModel):
     url: str = Field(description="Release URL of the upstream repo (GitHub or Gitea).")
     description: str = ""
     title: str | None = Field(default=None, description="Display title, if different from the derived name.")
+    category: str | None = Field(default=None, description="Single free-text category for this mirror.")
     asset_name: str | None = Field(
         default=None,
         description="Top-level release asset filename to use, when the release has multiple candidates.",
@@ -145,6 +147,10 @@ class EditPayloadRequest(BaseModel):
     url: str | None = Field(default=None, description="New source release URL, if changing the source.")
     description: str | None = Field(default=None, description="New description, if changing it.")
     title: str | None = Field(default=None, description="New display title, if changing it.")
+    category: str | None = Field(
+        default=None,
+        description="New category, if changing it. Omit to leave unchanged; send an empty string to clear it.",
+    )
     asset_name: str | None = Field(
         default=None,
         description="Top-level release asset filename to use, when the release has multiple candidates.",
@@ -261,7 +267,7 @@ def add_payload(req: AddPayloadRequest) -> Payload:
         with mirror_core.DATA_LOCK:
             return mirror_core.add_payload(
                 req.url, req.description, req.extract_file,
-                asset_name=req.asset_name, title=req.title,
+                asset_name=req.asset_name, title=req.title, category=req.category,
             )
     except MirrorError as e:
         _raise_http(e)
@@ -301,6 +307,7 @@ def edit_payload(name: Annotated[str, PathParam()], req: EditPayloadRequest) -> 
                 url=req.url,
                 description=req.description,
                 title=req.title,
+                category=req.category,
                 extract_file=req.extract_file,
                 asset_name=req.asset_name,
             )

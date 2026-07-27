@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import {
     getGitStatus,
     getTitle,
@@ -25,6 +25,8 @@ import {
     IconX,
     Logo,
 } from './components/icons';
+import { sortPayloads } from './sortPayloads';
+import { useSortPreference } from './useSortPreference';
 import { useTheme } from './useTheme';
 import type { Payload } from './types';
 
@@ -42,6 +44,27 @@ export function App() {
     const [titleDraft, setTitleDraft] = useState('');
     const [savingTitle, setSavingTitle] = useState(false);
     const { theme, toggle: toggleTheme } = useTheme();
+    const { sort, toggle: toggleSort } = useSortPreference();
+
+    // `payloads` always holds the curated order the backend returned, so clearing
+    // the sort restores it without a refetch. Only the rendered order is sorted.
+    const visiblePayloads = useMemo(
+        () => sortPayloads(payloads, sort),
+        [payloads, sort]
+    );
+
+    // Categories already in use, offered as autocomplete suggestions on the
+    // add/edit forms — derived from the loaded list, no separate endpoint.
+    const knownCategories = useMemo(() => {
+        const distinct = new Set<string>();
+        for (const p of payloads) {
+            const trimmed = p.category?.trim();
+            if (trimmed) distinct.add(trimmed);
+        }
+        return [...distinct].sort((a, b) =>
+            a.localeCompare(b, undefined, { sensitivity: 'base' })
+        );
+    }, [payloads]);
 
     const notify = useCallback((kind: ToastMessage['kind'], text: string) => {
         setToast({ kind, text });
@@ -346,6 +369,7 @@ export function App() {
                         <AddMirrorForm
                             onAdded={handleAdded}
                             onError={(m) => notify('error', m)}
+                            knownCategories={knownCategories}
                         />
                     </div>
                     <div
@@ -383,8 +407,11 @@ export function App() {
                         </div>
                     ) : (
                         <PayloadTable
-                            payloads={payloads}
+                            payloads={visiblePayloads}
                             busyName={busyName}
+                            sort={sort}
+                            onToggleSort={toggleSort}
+                            knownCategories={knownCategories}
                             onSetBusy={setBusyName}
                             onUpdated={handleUpdated}
                             onRemoved={handleRemoved}

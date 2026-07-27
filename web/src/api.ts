@@ -58,6 +58,7 @@ export function addPayload(body: {
   url: string;
   description?: string;
   title?: string;
+  category?: string | null;
   asset_name?: string | null;
   extract_file?: string | null;
 }): Promise<Payload> {

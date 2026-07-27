@@ -162,6 +162,15 @@ export function IconMoon({ className }: IconProps) {
   );
 }
 
+export function IconArrowDown({ className }: IconProps) {
+  return (
+    <Svg className={className}>
+      <path d="M12 5v14" />
+      <path d="M6 13l6 6 6-6" />
+    </Svg>
+  );
+}
+
 /** Friendly brand logo mark: two interlocking rounded shards = "mirror". */
 export function Logo({ className }: IconProps) {
   return (

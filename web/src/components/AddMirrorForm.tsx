@@ -8,13 +8,16 @@ import { CandidatePicker } from "./CandidatePicker";
 interface AddMirrorFormProps {
   onAdded: (payload: Payload) => void;
   onError: (message: string) => void;
+  /** Categories already in use across the current mirror list, offered as suggestions. */
+  knownCategories: string[];
 }
 
 /** Controlled form to add a new mirror from an upstream release URL. */
-export function AddMirrorForm({ onAdded, onError }: AddMirrorFormProps) {
+export function AddMirrorForm({ onAdded, onError, knownCategories }: AddMirrorFormProps) {
   const [url, setUrl] = useState("");
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
+  const [category, setCategory] = useState("");
   const [candidates, setCandidates] = useState<Candidate[] | null>(null);
   const [chosen, setChosen] = useState<Candidate | null>(null);
   const [submitting, setSubmitting] = useState(false);
@@ -30,6 +33,7 @@ export function AddMirrorForm({ onAdded, onError }: AddMirrorFormProps) {
         url: url.trim(),
         title: title.trim(),
         description: description.trim(),
+        category: category.trim() || null,
         asset_name: chosen?.asset_name ?? null,
         extract_file: chosen?.member_name ?? null,
       });
@@ -37,6 +41,7 @@ export function AddMirrorForm({ onAdded, onError }: AddMirrorFormProps) {
       setUrl("");
       setTitle("");
       setDescription("");
+      setCategory("");
       setCandidates(null);
       setChosen(null);
     } catch (err) {
@@ -106,6 +111,27 @@ export function AddMirrorForm({ onAdded, onError }: AddMirrorFormProps) {
             onChange={(e) => setDescription(e.target.value)}
             disabled={submitting}
           />
+        </div>
+
+        <div>
+          <label className="label" htmlFor="mirror-category">
+            Category <span className="font-normal text-faint">(optional)</span>
+          </label>
+          <input
+            id="mirror-category"
+            type="text"
+            className="input"
+            list="category-suggestions"
+            placeholder="e.g. Networking"
+            value={category}
+            onChange={(e) => setCategory(e.target.value)}
+            disabled={submitting}
+          />
+          <datalist id="category-suggestions">
+            {knownCategories.map((c) => (
+              <option key={c} value={c} />
+            ))}
+          </datalist>
         </div>
 
         {candidates && (

@@ -15,6 +15,10 @@ import {
 interface PayloadRowProps {
   payload: Payload;
   busy: boolean;
+  /** True while a column sort is active, which disables manual reordering. */
+  sorted: boolean;
+  /** Categories already in use across the current mirror list, offered as suggestions. */
+  knownCategories: string[];
   onUpdated: (
     payload: Payload,
     message: string,
@@ -31,6 +35,8 @@ interface PayloadRowProps {
 export function PayloadRow({
   payload,
   busy,
+  sorted,
+  knownCategories,
   onUpdated,
   onRemoved,
   onError,
@@ -75,36 +81,54 @@ export function PayloadRow({
     }
   }
 
+  // Reordering is only offered in the curated order: a drop applied to a sorted
+  // view would persist that view as the new sort_order, silently discarding the
+  // order the user curated by hand.
+  const dragProps = sorted
+    ? {}
+    : {
+        draggable: true,
+        onDragStart: (e: React.DragEvent) => {
+          e.dataTransfer.setData("text/plain", payload.name);
+          e.dataTransfer.effectAllowed = "move";
+          setDragging(true);
+        },
+        onDragEnd: () => setDragging(false),
+        onDragOver: (e: React.DragEvent) => {
+          e.preventDefault();
+          e.dataTransfer.dropEffect = "move";
+          if (!dropTarget) setDropTarget(true);
+        },
+        onDragLeave: () => setDropTarget(false),
+        onDrop: (e: React.DragEvent) => {
+          e.preventDefault();
+          setDropTarget(false);
+          const draggedName = e.dataTransfer.getData("text/plain");
+          if (draggedName && draggedName !== payload.name) {
+            onReorder(draggedName, payload.name);
+          }
+        },
+      };
+
   return (
     <tr
-      draggable
-      onDragStart={(e) => {
-        e.dataTransfer.setData("text/plain", payload.name);
-        e.dataTransfer.effectAllowed = "move";
-        setDragging(true);
-      }}
-      onDragEnd={() => setDragging(false)}
-      onDragOver={(e) => {
-        e.preventDefault();
-        e.dataTransfer.dropEffect = "move";
-        if (!dropTarget) setDropTarget(true);
-      }}
-      onDragLeave={() => setDropTarget(false)}
-      onDrop={(e) => {
-        e.preventDefault();
-        setDropTarget(false);
-        const draggedName = e.dataTransfer.getData("text/plain");
-        if (draggedName && draggedName !== payload.name) {
-          onReorder(draggedName, payload.name);
-        }
-      }}
+      {...dragProps}
       className={`border-b border-line transition-colors last:border-0 hover:bg-paper/60 ${
         busy ? "opacity-55" : ""
       } ${dragging ? "opacity-40" : ""} ${
         dropTarget ? "bg-brand-50 dark:bg-brand-500/10" : ""
       } ${payload.hidden ? "opacity-50" : ""}`}
     >
-      <td className="cursor-grab px-3 py-4 align-top text-faint active:cursor-grabbing">
+      <td
+        className={`px-3 py-4 align-top text-faint ${
+          sorted ? "opacity-30" : "cursor-grab active:cursor-grabbing"
+        }`}
+        title={
+          sorted
+            ? "Clear the column sort to reorder mirrors manually"
+            : "Drag to reorder"
+        }
+      >
         <IconGrip className="h-4 w-4" />
       </td>
       <td className="px-5 py-4 align-top">
@@ -112,6 +136,9 @@ export function PayloadRow({
           <span className="font-semibold text-ink">{payload.title ?? payload.name}</span>
           {payload.hidden && (
             <span className="chip bg-paper text-faint">Hidden</span>
+          )}
+          {payload.category && (
+            <span className="chip bg-paper text-faint">{payload.category}</span>
           )}
         </div>
         {payload.description && (
@@ -192,6 +219,7 @@ export function PayloadRow({
       {editing && (
         <EditMirrorDialog
           payload={payload}
+          knownCategories={knownCategories}
           onClose={() => setEditing(false)}
           onError={onError}
           onSaved={(saved) => {

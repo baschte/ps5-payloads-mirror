@@ -8,6 +8,7 @@ export interface Payload {
   asset_pattern?: string | null;
   extract_file?: string | null;
   description?: string | null;
+  category?: string | null;
   last_update?: string | null;
   version?: string | null;
   checksum?: string | null;
@@ -60,6 +61,7 @@ export interface EditPayloadRequest {
   url?: string;
   description?: string;
   title?: string;
+  category?: string | null;
   asset_name?: string | null;
   extract_file?: string | null;
 }

@@ -11,13 +11,16 @@ interface EditMirrorDialogProps {
   onSaved: (payload: Payload) => void;
   onClose: () => void;
   onError: (message: string) => void;
+  /** Categories already in use across the current mirror list, offered as suggestions. */
+  knownCategories: string[];
 }
 
-/** Modal to edit an existing mirror's source URL, description, and asset/file selection. */
-export function EditMirrorDialog({ payload, onSaved, onClose, onError }: EditMirrorDialogProps) {
+/** Modal to edit an existing mirror's source URL, description, category, and asset/file selection. */
+export function EditMirrorDialog({ payload, onSaved, onClose, onError, knownCategories }: EditMirrorDialogProps) {
   const [url, setUrl] = useState(payload.source ?? "");
   const [title, setTitle] = useState(payload.title ?? payload.name);
   const [description, setDescription] = useState(payload.description ?? "");
+  const [category, setCategory] = useState(payload.category ?? "");
   const [candidates, setCandidates] = useState<Candidate[] | null>(null);
   const [chosen, setChosen] = useState<Candidate | null>(null);
   const [loadingCandidates, setLoadingCandidates] = useState(false);
@@ -55,6 +58,7 @@ export function EditMirrorDialog({ payload, onSaved, onClose, onError }: EditMir
         url: url.trim(),
         title: title.trim(),
         description: description.trim(),
+        category: category.trim() || null,
         asset_name: chosen?.asset_name ?? null,
         extract_file: chosen?.member_name ?? null,
       });
@@ -138,6 +142,27 @@ export function EditMirrorDialog({ payload, onSaved, onClose, onError }: EditMir
               onChange={(e) => setDescription(e.target.value)}
               disabled={submitting}
             />
+          </div>
+
+          <div>
+            <label className="label" htmlFor="edit-mirror-category">
+              Category <span className="font-normal text-faint">(optional)</span>
+            </label>
+            <input
+              id="edit-mirror-category"
+              type="text"
+              className="input"
+              list="edit-category-suggestions"
+              placeholder="e.g. Networking"
+              value={category}
+              onChange={(e) => setCategory(e.target.value)}
+              disabled={submitting}
+            />
+            <datalist id="edit-category-suggestions">
+              {knownCategories.map((c) => (
+                <option key={c} value={c} />
+              ))}
+            </datalist>
           </div>
 
           {candidates ? (
