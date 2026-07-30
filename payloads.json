@@ -3,16 +3,16 @@
   "payloads": [
     {
       "name": "cheatrunner",
-      "filename": "cheatrunner_v0.16.elf",
-      "url": "https://github.com/baschte/ps5-payloads-mirror/releases/download/payloads-mirror/cheatrunner_v0.16.elf",
+      "filename": "cheatrunner_v0.17.elf",
+      "url": "https://github.com/baschte/ps5-payloads-mirror/releases/download/payloads-mirror/cheatrunner_v0.17.elf",
       "source": "https://github.com/notmaj0r/CheatRunner/releases",
-      "source_direct": "https://github.com/notmaj0r/CheatRunner/releases/download/v0.16/CheatRunner.elf",
+      "source_direct": "https://github.com/notmaj0r/CheatRunner/releases/download/v0.17/CheatRunner.elf",
       "asset_pattern": "CheatRunner.elf",
       "description": "CheatRunner is a PS5 web launcher and cheat trainer for already-jailbroken PS5 consoles.",
       "category": "Cheats & Patches",
-      "last_update": "2026-07-20",
-      "version": "v0.16",
-      "checksum": "a5483253926a0188c76a68101714cbd9bbc9c2305e0b071fad775d752da995bb",
+      "last_update": "2026-07-30",
+      "version": "v0.17",
+      "checksum": "2f296d3f1e69b65439bb5dc362f0f6504f6dc9f245fa16a3683e9d7ec9533773",
       "sort_order": 10,
       "hidden": false,
       "title": "CheatRunner"
