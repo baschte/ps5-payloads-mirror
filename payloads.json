@@ -272,6 +272,23 @@
       "sort_order": 170,
       "hidden": false,
       "title": "shsrv"
+    },
+    {
+      "name": "actremotelink-pin",
+      "filename": "actremotelink-pin_v2.0.elf",
+      "url": "https://github.com/baschte/ps5-payloads-mirror/releases/download/payloads-mirror/actremotelink-pin_v2.0.elf",
+      "source": "https://github.com/francoataffarel/ActRemoteLink/releases",
+      "source_direct": "https://github.com/francoataffarel/ActRemoteLink/releases/download/v2.0/ActRemoteLink.zip",
+      "asset_pattern": "ActRemoteLink.zip",
+      "extract_file": "actremotelink_pin_notify.elf",
+      "description": "ActRemoteLink is a set of payloads and utilities for PS5 jailbreak workflows focused on offline activation of a local account and Remote Play / Chiaki pairing without PSN access.",
+      "category": "Network Services",
+      "last_update": "2026-06-21",
+      "version": "v2.0",
+      "checksum": "f1e0aa745cdd8e3d65ac780193b317042e47da327ee632e2cbb25bc79108fe56",
+      "sort_order": 171,
+      "hidden": false,
+      "title": "ActRemoteLink - Pin"
     }
   ]
 }

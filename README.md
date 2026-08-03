@@ -165,6 +165,7 @@ It calls `update_payloads.py`, uploads new assets as GitHub release files (`gh r
 | **nanodns** | `0.3` | Minimal PS4/PS5 payload DNS proxy | `2026-06-03` | [Source](https://github.com/drakmor/nanoDNS/releases) | [Download](https://github.com/baschte/ps5-payloads-mirror/releases/download/payloads-mirror/nanodns_0.3.elf) |
 | **klogsrv** | `v0.9` | A simple socket server that redirects /dev/klog to sockets connected on port 3232 | `2026-08-02` | [Source](https://github.com/ps5-payload-dev/klogsrv/releases) | [Download](https://github.com/baschte/ps5-payloads-mirror/releases/download/payloads-mirror/klogsrv_v0.9.elf) |
 | **shsrv** | `v0.20` | A simple telnet-like shell server for jailbroken PS5s that accepts connections on port 2323 | `2026-08-02` | [Source](https://github.com/ps5-payload-dev/shsrv/releases) | [Download](https://github.com/baschte/ps5-payloads-mirror/releases/download/payloads-mirror/shsrv_v0.20.elf) |
+| **actremotelink-pin** | `v2.0` | ActRemoteLink is a set of payloads and utilities for PS5 jailbreak workflows focused on offline activation of a local account and Remote Play / Chiaki pairing without PSN access. | `2026-06-21` | [Source](https://github.com/francoataffarel/ActRemoteLink/releases) | [Download](https://github.com/baschte/ps5-payloads-mirror/releases/download/payloads-mirror/actremotelink-pin_v2.0.elf) |
 <!-- PAYLOADS_END -->
 
 ## Support & Suggestions
