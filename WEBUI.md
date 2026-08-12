@@ -26,19 +26,50 @@ written atomically, so concurrent runs can never corrupt or drop entries.
 
 ## Authentication (optional)
 
-The UI and the management API can be protected with HTTP Basic Auth. Set **both**
-env vars to enable a login:
+The UI and the management API can be protected with a login screen. Set **both**
+env vars to enable it:
 
 ```
 MIRROR_AUTH_USER=admin
 MIRROR_AUTH_PASSWORD=change-me
 ```
 
-- When set, `/` (UI), `/assets/*` and `/api/*` require the credentials (the
-  browser shows a native login dialog and reuses the credentials for the API).
-- **Always public**, even with auth on: `GET /payloads.json` (the read-only feed)
-  and `GET /api/health` (so the container healthcheck keeps working).
-- When the vars are empty/unset, everything stays open (default).
+Signing in posts the credentials to `POST /api/auth/login`, which returns a
+short-lived signed token in an `HttpOnly`, `SameSite=Lax` cookie. The session is
+**sliding**: it is renewed while you use the app and expires after 8 idle hours.
+`POST /api/auth/logout` ends it; `GET /api/auth/me` reports it.
+
+- **Protected**: `/api/*` (except the paths below), plus `/docs`, `/redoc` and
+  `/openapi.json`.
+- **Always public**, even with auth on: `GET /payloads.json` (the read-only
+  feed), `GET /api/health` (so the container healthcheck keeps working),
+  `/api/auth/*`, and the frontend shell (`/`, `/assets/*`) — the login screen
+  has to be able to render before you have any credentials, so the JS bundle is
+  served unauthenticated. It contains no secrets.
+- When the vars are empty/unset, everything stays open (default) and no login
+  screen or sign-out button appears.
+
+Details worth knowing:
+
+- **No separate secret to configure.** The token signing key is derived from
+  `MIRROR_AUTH_USER` + `MIRROR_AUTH_PASSWORD`, so sessions survive a container
+  restart — but changing either value signs everybody out immediately.
+- **`MIRROR_COOKIE_SECURE`** (`auto` | `true` | `false`, default `auto`) decides
+  whether the cookie gets the `Secure` flag. `auto` sets it whenever the request
+  arrived over HTTPS, which keeps the login working both behind an HTTPS reverse
+  proxy and via direct `http://host:PORT` access on a LAN. Set it to `true` only
+  if the app is reachable exclusively over HTTPS — over plain HTTP the browser
+  silently drops a `Secure` cookie and the login appears to do nothing.
+- **Behind a reverse proxy** (nginx-proxy-manager, Traefik, …), uvicorn only
+  honours `X-Forwarded-Proto` from senders it trusts, and defaults to
+  `127.0.0.1`. `docker-compose.yml` therefore sets `FORWARDED_ALLOW_IPS: "*"`;
+  without it `auto` never sees the HTTPS and the cookie loses its `Secure` flag.
+- **Failed logins are throttled** by a progressive delay (up to 5 s) rather than
+  a lockout, so brute force is slowed down but nobody can lock you out.
+- Because cookies are per-origin, `https://mirror.example.com` and
+  `http://192.168.1.10:8000` hold independent sessions.
+- Adding `PyJWT` means an upgrade needs `docker compose up -d --build` — pulling
+  or restarting the old image is not enough.
 
 ## Publish to GitHub (optional)
 
@@ -62,7 +93,7 @@ Requirements & behaviour:
 - The token is passed to git via a one-shot credential helper from the
   environment — never written to disk, never in argv, never in the remote URL,
   and any git output is scrubbed of it before reaching the client.
-- The endpoint sits behind the Basic Auth above. Use HTTPS in production.
+- The endpoint sits behind the login above. Use HTTPS in production.
 - When the four vars aren't set (or it isn't a git repo), the button is hidden.
 
 ### Auto-publish

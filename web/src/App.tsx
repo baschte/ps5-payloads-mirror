@@ -9,6 +9,7 @@ import {
     setTitle,
     updateAll,
 } from './api';
+import { useAuth } from './auth/useAuth';
 import { AddMirrorForm } from './components/AddMirrorForm';
 import { PayloadTable } from './components/PayloadTable';
 import { SchedulerPanel } from './components/SchedulerPanel';
@@ -19,6 +20,7 @@ import {
     IconExternal,
     IconMoon,
     IconPencil,
+    IconSignOut,
     IconSun,
     IconSync,
     IconUpload,
@@ -45,6 +47,9 @@ export function App() {
     const [savingTitle, setSavingTitle] = useState(false);
     const { theme, toggle: toggleTheme } = useTheme();
     const { sort, toggle: toggleSort } = useSortPreference();
+    // `status` is 'disabled' when this deployment has no credentials
+    // configured — there is nothing to sign out of, so no button.
+    const { status: authStatus, username, signOut } = useAuth();
 
     // `payloads` always holds the curated order the backend returned, so clearing
     // the sort restores it without a refetch. Only the rendered order is sorted.
@@ -348,6 +353,20 @@ export function App() {
                             <IconMoon className="h-[1.15rem] w-[1.15rem]" />
                         )}
                     </button>
+                    {authStatus === 'authed' && (
+                        <button
+                            type="button"
+                            className="btn btn-ghost h-11 w-11 !px-0"
+                            onClick={() => void signOut()}
+                            aria-label="Sign out"
+                            title={
+                                username
+                                    ? `Sign out (${username})`
+                                    : 'Sign out'
+                            }>
+                            <IconSignOut className="h-[1.15rem] w-[1.15rem]" />
+                        </button>
+                    )}
                     <button
                         type="button"
                         className="btn btn-md btn-primary"

@@ -1,4 +1,4 @@
-import { ApiError } from "./types";
+import { ApiError, UnauthorizedError } from "./types";
 import type {
   Candidate,
   CollectionTitle,
@@ -7,9 +7,25 @@ import type {
   GitStatus,
   Payload,
   SchedulerStatus,
+  SessionStatus,
   UpdateAllResult,
   UpdateResult,
 } from "./types";
+
+/**
+ * Notified whenever the backend rejects a call as unauthenticated, so the app
+ * can return to the login screen from one place instead of every call site.
+ *
+ * Kept as a module-level slot rather than a React value because this module is
+ * plain TypeScript — `AuthProvider` registers itself once on mount.
+ */
+type UnauthorizedHandler = () => void;
+
+let onUnauthorized: UnauthorizedHandler | null = null;
+
+export function setUnauthorizedHandler(handler: UnauthorizedHandler | null) {
+  onUnauthorized = handler;
+}
 
 /** Parse a FastAPI error response into an ApiError, including 422 candidates. */
 async function toApiError(res: Response): Promise<ApiError> {
@@ -29,14 +45,64 @@ async function toApiError(res: Response): Promise<ApiError> {
   );
 }
 
-async function request<T>(input: string, init?: RequestInit): Promise<T> {
+interface RequestOptions {
+  /**
+   * Whether a 401 should trigger the global "session is gone" handler.
+   * The auth endpoints opt out: their 401s are expected answers (not signed
+   * in / wrong password) and are handled by the login screen itself.
+   */
+  handleUnauthorized?: boolean;
+}
+
+async function request<T>(
+  input: string,
+  init?: RequestInit,
+  { handleUnauthorized = true }: RequestOptions = {},
+): Promise<T> {
   const res = await fetch(input, {
+    // The session lives in a same-origin HttpOnly cookie; being explicit here
+    // documents that these calls are authenticated by it.
+    credentials: "same-origin",
     headers: { "Content-Type": "application/json" },
     ...init,
   });
+  if (res.status === 401 && handleUnauthorized) {
+    onUnauthorized?.();
+    throw new UnauthorizedError();
+  }
   if (!res.ok) throw await toApiError(res);
   if (res.status === 204) return undefined as T;
   return (await res.json()) as T;
+}
+
+// --------------------------------------------------------------------------- //
+// Auth
+// --------------------------------------------------------------------------- //
+
+/** Current session. Rejects with a 401 ApiError when not signed in. */
+export function getSession(): Promise<SessionStatus> {
+  return request<SessionStatus>("/api/auth/me", undefined, {
+    handleUnauthorized: false,
+  });
+}
+
+export function login(
+  username: string,
+  password: string,
+): Promise<SessionStatus> {
+  return request<SessionStatus>(
+    "/api/auth/login",
+    { method: "POST", body: JSON.stringify({ username, password }) },
+    { handleUnauthorized: false },
+  );
+}
+
+export function logout(): Promise<SessionStatus> {
+  return request<SessionStatus>(
+    "/api/auth/logout",
+    { method: "POST" },
+    { handleUnauthorized: false },
+  );
 }
 
 export function getTitle(): Promise<CollectionTitle> {

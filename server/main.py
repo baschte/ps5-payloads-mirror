@@ -9,21 +9,19 @@ Path operations that touch the network or filesystem are declared as plain
 event loop is never blocked.
 """
 
-import base64
 import os
-import secrets
 from contextlib import asynccontextmanager
 from pathlib import Path
 from typing import Annotated, Any
 
 from fastapi import FastAPI, HTTPException, Path as PathParam, Request, Response
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 
 import mirror_core
 from mirror_core import AmbiguousAssetError, DuplicateError, MirrorError, NotFoundError
-from server import git_ops
+from server import auth, git_ops
 from server.auto_publish import AutoPublisher
 from server.scheduler import MAX_INTERVAL_HOURS, MIN_INTERVAL_HOURS, Scheduler
 
@@ -65,41 +63,116 @@ DIST_DIR = _resolve_dist_dir()
 
 
 # --------------------------------------------------------------------------- #
-# Optional HTTP Basic Auth
+# Optional session authentication
 #
-# When MIRROR_AUTH_USER and MIRROR_AUTH_PASSWORD are both set, the UI and the
-# management API require Basic Auth. The public, read-only payloads feed
-# (/payloads.json) and the health check stay open so the mirror can be consumed
-# anonymously and the container healthcheck keeps working.
+# When MIRROR_AUTH_USER and MIRROR_AUTH_PASSWORD are both set, the management
+# API requires a session established through the login screen (see server/auth).
+# Everything the browser needs in order to *render* that screen stays public —
+# the SPA shell and its assets — as do the raw payloads feed (consumed by third
+# parties) and the health check (used by the container healthcheck).
+#
+# The guard is a middleware rather than a per-route dependency so that it is
+# fail-closed: a newly added /api endpoint is protected without anyone having to
+# remember to protect it.
 # --------------------------------------------------------------------------- #
-AUTH_USER = os.environ.get("MIRROR_AUTH_USER", "")
-AUTH_PASSWORD = os.environ.get("MIRROR_AUTH_PASSWORD", "")
-AUTH_ENABLED = bool(AUTH_USER and AUTH_PASSWORD)
-PUBLIC_PATHS = frozenset({"/payloads.json", "/api/health"})
+
+# Not under /api/, but still management surface rather than app shell.
+_PROTECTED_NON_API = frozenset({"/docs", "/redoc", "/openapi.json"})
 
 
-def _credentials_ok(header: str | None) -> bool:
-    if not header or not header.startswith("Basic "):
+def _is_public(path: str) -> bool:
+    """Whether `path` is reachable without a session.
+
+    Public: the SPA shell and its assets, /payloads.json, the health check, and
+    the auth endpoints themselves (logging out and asking "am I signed in?" must
+    work precisely when there is no valid session).
+    """
+    if path in _PROTECTED_NON_API:
         return False
-    try:
-        user, _, password = base64.b64decode(header[6:]).decode("utf-8").partition(":")
-    except (ValueError, UnicodeDecodeError):
-        return False
-    # Constant-time comparison to avoid leaking length/content via timing.
-    return secrets.compare_digest(user, AUTH_USER) and secrets.compare_digest(
-        password, AUTH_PASSWORD
-    )
+    if not path.startswith("/api/"):
+        return True
+    return path == "/api/health" or path.startswith("/api/auth/")
 
 
 @app.middleware("http")
-async def basic_auth(request: Request, call_next):
-    if not AUTH_ENABLED or request.url.path in PUBLIC_PATHS:
+async def session_auth(request: Request, call_next):
+    if not auth.AUTH_ENABLED or _is_public(request.url.path):
         return await call_next(request)
-    if _credentials_ok(request.headers.get("Authorization")):
-        return await call_next(request)
-    return Response(
-        status_code=401,
-        headers={"WWW-Authenticate": 'Basic realm="Payloads Mirror"'},
+
+    claims = auth.decode_token(request.cookies.get(auth.SESSION_COOKIE))
+    if claims is None:
+        # Plain JSON 401 — deliberately no WWW-Authenticate, which would make
+        # the browser pop its native credential dialog over the login screen.
+        return JSONResponse({"detail": "Not authenticated"}, status_code=401)
+
+    response = await call_next(request)
+    # Slide the session forward while it is being used (see auth.needs_refresh).
+    if response.status_code < 400 and auth.needs_refresh(claims):
+        auth.set_session_cookie(
+            response, auth.issue_token(str(claims.get("sub", auth.AUTH_USER))), request
+        )
+    return response
+
+
+# --------------------------------------------------------------------------- #
+# Auth endpoints
+# --------------------------------------------------------------------------- #
+class LoginRequest(BaseModel):
+    username: str
+    password: str
+
+
+class SessionStatus(BaseModel):
+    """What the frontend needs to decide between login screen and app shell."""
+
+    authenticated: bool
+    auth_enabled: bool
+    username: str | None = None
+
+
+@app.post("/api/auth/login")
+async def login(req: LoginRequest, request: Request, response: Response) -> SessionStatus:
+    """Exchange credentials for a session cookie.
+
+    Declared ``async`` on purpose: the brute-force delay is awaited, so it parks
+    the coroutine instead of tying up a threadpool worker.
+    """
+    if not auth.AUTH_ENABLED:
+        # Nothing to log in to. Succeed rather than error, so a client that
+        # tries anyway is never stuck on a login screen it cannot get past.
+        return SessionStatus(authenticated=True, auth_enabled=False)
+
+    # Applied before verification so a correct password waits exactly as long
+    # as a wrong one, and the delay itself leaks nothing.
+    await auth.apply_login_delay()
+
+    if not auth.verify_credentials(req.username, req.password):
+        await auth.register_login_failure()
+        # One generic message: never reveal which half was wrong.
+        raise HTTPException(status_code=401, detail="Invalid username or password.")
+
+    await auth.reset_login_failures()
+    auth.set_session_cookie(response, auth.issue_token(auth.AUTH_USER), request)
+    return SessionStatus(authenticated=True, auth_enabled=True, username=auth.AUTH_USER)
+
+
+@app.post("/api/auth/logout")
+def logout(request: Request, response: Response) -> SessionStatus:
+    """End the session. Succeeds even without one, so it is always safe to call."""
+    auth.clear_session_cookie(response, request)
+    return SessionStatus(authenticated=False, auth_enabled=auth.AUTH_ENABLED)
+
+
+@app.get("/api/auth/me")
+def session_status(request: Request) -> SessionStatus:
+    """Report the caller's session so the frontend knows what to render."""
+    if not auth.AUTH_ENABLED:
+        return SessionStatus(authenticated=True, auth_enabled=False)
+    claims = auth.decode_token(request.cookies.get(auth.SESSION_COOKIE))
+    if claims is None:
+        raise HTTPException(status_code=401, detail="Not authenticated")
+    return SessionStatus(
+        authenticated=True, auth_enabled=True, username=str(claims.get("sub", ""))
     )
 
 

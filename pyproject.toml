@@ -5,6 +5,8 @@ description = "Web UI + automation for mirroring PS5 payloads."
 requires-python = ">=3.10"
 dependencies = [
     "fastapi[standard]>=0.115.0",
+    # Signs/verifies the session cookie issued by the login flow.
+    "PyJWT>=2.8.0",
 ]
 
 [tool.fastapi]

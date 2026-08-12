@@ -24,10 +24,22 @@ services:
       GH_TOKEN: ${GH_TOKEN:-}
       # Durable fallback title (a title set in the UI still takes precedence).
       MIRROR_TITLE: ${MIRROR_TITLE:-}
-      # Optional Basic Auth for the UI + management API (set both to enable).
+      # Optional login for the UI + management API (set both to enable).
       # /payloads.json and /api/health stay public regardless.
       MIRROR_AUTH_USER: ${MIRROR_AUTH_USER:-}
       MIRROR_AUTH_PASSWORD: ${MIRROR_AUTH_PASSWORD:-}
+      # Session cookie "Secure" flag: auto (default) | true | false.
+      # "auto" sets it whenever the request arrived over HTTPS, which keeps the
+      # login working both behind an HTTPS proxy and over plain HTTP on the LAN.
+      MIRROR_COOKIE_SECURE: ${MIRROR_COOKIE_SECURE:-auto}
+      # Required for "auto" above to see through a reverse proxy: uvicorn only
+      # honours X-Forwarded-Proto from trusted senders and defaults to
+      # 127.0.0.1, which a proxy container/host never matches. Without this the
+      # cookie silently loses its Secure flag behind HTTPS. Trusting any sender
+      # is safe here because the only forwarded value this app reads is the
+      # scheme, and it only affects the caller's own cookie — no authorization
+      # decision depends on the client address.
+      FORWARDED_ALLOW_IPS: "*"
       # Optional "Publish to GitHub" button: set ALL four to enable commit+push
       # of payloads.json + README.md. GIT_PASSWORD must be a GitHub token (PAT).
       GIT_USERNAME: ${GIT_USERNAME:-}

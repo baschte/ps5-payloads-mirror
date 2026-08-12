@@ -93,7 +93,8 @@ All variables are optional, see [.env.example](.env.example):
 | `GH_TOKEN` | GitHub token for the `gh` CLI (reading release metadata) |
 | `PORT` | Host-side port, default `8000` |
 | `MIRROR_TITLE` | Fallback collection title, used if none is set in `payloads.json` |
-| `MIRROR_AUTH_USER` / `MIRROR_AUTH_PASSWORD` | Enables HTTP Basic Auth for the UI & management API (`/payloads.json` and `/api/health` always stay public) |
+| `MIRROR_AUTH_USER` / `MIRROR_AUTH_PASSWORD` | Enables the login screen for the UI & management API (`/payloads.json` and `/api/health` always stay public). Changing either value signs out all open sessions |
+| `MIRROR_COOKIE_SECURE` | Session cookie `Secure` flag: `auto` (default, follows the request scheme), `true`, or `false` |
 | `GIT_USERNAME` / `GIT_PASSWORD` | GitHub credentials (personal access token) for "Publish to GitHub" |
 | `GIT_AUTHOR_NAME` / `GIT_AUTHOR_EMAIL` | Commit author for automatic pushes |
 

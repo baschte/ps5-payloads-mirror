@@ -28,9 +28,9 @@ RUN apt-get update \
     # so trust it to avoid "dubious ownership" errors.
     && git config --system --add safe.directory '*'
 
-# Install the Python runtime dependency (kept in sync with pyproject.toml).
+# Install the Python runtime dependencies (kept in sync with pyproject.toml).
 # Installed before the app code so this layer stays cached across code changes.
-RUN pip install --no-cache-dir "fastapi[standard]>=0.115.0"
+RUN pip install --no-cache-dir "fastapi[standard]>=0.115.0" "PyJWT>=2.8.0"
 
 # Application code + data.
 COPY mirror_core.py add_payload.py update_payloads.py ./
