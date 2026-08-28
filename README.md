@@ -168,7 +168,7 @@ It calls `update_payloads.py`, uploads new assets as GitHub release files (`gh r
 | **shsrv** | `v0.20` | A simple telnet-like shell server for jailbroken PS5s that accepts connections on port 2323 | `2026-08-02` | [Source](https://github.com/ps5-payload-dev/shsrv/releases) | [Download](https://github.com/baschte/ps5-payloads-mirror/releases/download/payloads-mirror/shsrv_v0.20.elf) |
 | **actremotelink-pin** | `v2.0` | ActRemoteLink is a set of payloads and utilities for PS5 jailbreak workflows focused on offline activation of a local account and Remote Play / Chiaki pairing without PSN access. | `2026-06-21` | [Source](https://github.com/francoataffarel/ActRemoteLink/releases) | [Download](https://github.com/baschte/ps5-payloads-mirror/releases/download/payloads-mirror/actremotelink-pin_v2.0.elf) |
 | **onionHEN** | `v0.0.10` | An all-in-one HEN and Toolbox for PlayStation 5 | `2026-08-17` | [Source](https://github.com/aydencharles/onionHEN/releases) | [Download](https://github.com/baschte/ps5-payloads-mirror/releases/download/payloads-mirror/onionHEN_v0.0.10.elf) |
-| **apr-emu-updater** | `v2.0.3` | A standalone PS5 payload that keeps APR Emu up to date on installed titles | `2026-08-28` | [Source](https://github.com/tsuramatsu1/apr-emu-updater/releases) | [Download](https://github.com/baschte/ps5-payloads-mirror/releases/download/payloads-mirror/apr-emu-updater_v2.0.3.elf) |
+| **apr-emu-updater** | `v2.0.5` | A standalone PS5 payload that keeps APR Emu up to date on installed titles | `2026-08-28` | [Source](https://github.com/tsuramatsu1/apr-emu-updater/releases) | [Download](https://github.com/baschte/ps5-payloads-mirror/releases/download/payloads-mirror/apr-emu-updater_v2.0.5.elf) |
 <!-- PAYLOADS_END -->
 
 ## Support & Suggestions
